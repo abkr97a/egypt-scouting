@@ -338,59 +338,43 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* ---- match stats (form / impact / trajectory) ---- */
-.formstrip{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.fg{flex:1 1 0;min-width:52px;background:var(--stone-2);border:1px solid var(--line);
-  border-radius:9px;padding:8px 6px;text-align:center;position:relative;overflow:hidden}
-:root[data-theme="light"] .fg{background:#fff;border-color:var(--line-lt)}
-.fg .res{font-family:var(--disp);font-size:15px;font-weight:800;line-height:1}
-.fg.W .res{color:var(--up)} .fg.D .res{color:var(--muted)} .fg.L .res{color:var(--red)}
-.fg .sc{font-size:10px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
-.fg .mn{font-size:10px;color:var(--muted);margin-top:5px;border-top:1px solid var(--line);
-  padding-top:4px;font-variant-numeric:tabular-nums}
-.fg .ga{font-size:11px;font-weight:700;color:var(--gold);margin-top:3px}
-.fg .st{position:absolute;top:4px;right:5px;font-size:8px;letter-spacing:.06em;color:var(--muted)}
-.impact{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:center;
-  background:var(--stone-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:4px}
-:root[data-theme="light"] .impact{background:#fff;border-color:var(--line-lt)}
-.impact .ib{text-align:center}
-.impact .ib b{display:block;font-family:var(--disp);font-size:24px;line-height:1;font-weight:800}
-.impact .ib span{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--muted);margin-top:5px}
-.impact .delta{font-family:var(--disp);font-size:19px;font-weight:800;padding:8px 12px;border-radius:9px;
-  background:rgba(200,16,46,.1);color:var(--red);white-space:nowrap}
-.impact .delta.pos{background:rgba(46,160,90,.12);color:var(--up)}
-.trajrow{display:grid;grid-template-columns:52px 1fr 96px;gap:12px;align-items:center;padding:7px 0;
-  border-bottom:1px solid var(--line)}
-.trajrow:last-child{border-bottom:0}
-.trajrow .ts{font-family:var(--mono,var(--sans));font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
-.trajrow .tbar{height:16px;background:var(--stone);border-radius:5px;overflow:hidden;position:relative}
-:root[data-theme="light"] .trajrow .tbar{background:#f0ecec}
-.trajrow .tbar i{display:block;height:100%;background:linear-gradient(90deg,#5b0d18,var(--red));border-radius:5px}
-.trajrow .tv{font-size:11px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.trajrow .tv b{color:var(--ink);font-weight:700}
-.mnote{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
 
-/* ---- form chip tooltip ---- */
-.fg{cursor:default}
-.fg .tip{position:absolute;left:50%;bottom:calc(100% + 9px);transform:translate(-50%,4px);
-  width:max-content;max-width:230px;background:#0e1013;color:#f3efee;border:1px solid #2a2f35;
-  border-radius:10px;padding:10px 12px;text-align:left;font-size:11px;line-height:1.5;
-  box-shadow:0 10px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .14s,transform .14s;
-  z-index:40;white-space:normal}
-:root[data-theme="light"] .fg .tip{background:#17191c;color:#f5f3f2;border-color:#33383f}
-.fg .tip::after{content:"";position:absolute;left:50%;top:100%;transform:translateX(-50%);
-  border:6px solid transparent;border-top-color:#0e1013}
-:root[data-theme="light"] .fg .tip::after{border-top-color:#17191c}
-.fg:hover .tip,.fg:focus-visible .tip{opacity:1;transform:translate(-50%,0)}
-.fg .tip .tc{font-weight:700;color:#fff;display:block;margin-bottom:3px}
-.fg .tip .td{color:#9aa1a8;display:block;font-variant-numeric:tabular-nums}
-.fg .tip .tl{display:block;margin-top:6px;padding-top:6px;border-top:1px solid #2a2f35;color:#cfd4d9}
-.fg .tip .tl b{color:#fff}
-.fg .tip .tw{color:#4fbf7a}.fg .tip .tls{color:#e8556d}.fg .tip .tdr{color:#9aa1a8}
-/* keep the strip from clipping the tooltip */
-.formstrip{overflow:visible}
-@media (hover:none){.fg .tip{display:none}}
+/* ---- match tables (form / seasons) ---- */
+.mtbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:2px}
+.mtbl th{font:700 9.5px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  text-align:left;padding:0 8px 8px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.mtbl th.r,.mtbl td.r{text-align:right;padding-right:0}
+.mtbl th.c,.mtbl td.c{text-align:center}
+.mtbl td{padding:9px 8px 9px 0;border-bottom:1px solid var(--line);color:var(--sand);
+  font-variant-numeric:tabular-nums;vertical-align:middle}
+.mtbl tr:last-child td{border-bottom:0}
+.mtbl .dt{color:var(--muted);font-size:11px;white-space:nowrap}
+.mtbl .cp{color:var(--ink);font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mtbl .cp small{display:block;font-weight:400;color:var(--muted);font-size:10px;letter-spacing:.02em}
+.mtbl .ha{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.rp{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:11px;
+  padding:3px 9px;border-radius:20px;letter-spacing:.03em}
+.rp.W{background:rgba(46,160,90,.13);color:#2e9d5a}
+.rp.D{background:rgba(122,114,110,.14);color:var(--muted)}
+.rp.L{background:rgba(200,16,46,.11);color:var(--red)}
+.rp .sc{font-variant-numeric:tabular-nums;opacity:.75;font-weight:600}
+.mtbl .mn{color:var(--sand);white-space:nowrap}
+.mtbl .mn i{font-style:normal;font-size:10px;color:var(--muted);margin-left:4px;letter-spacing:.04em}
+.mtbl .ga{font-weight:700;color:var(--red);white-space:nowrap}
+.mtbl .ga.z{color:var(--line);font-weight:400}
+.mwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* impact — lighter, inline, no heavy panel */
+.impact2{display:flex;gap:26px;align-items:baseline;flex-wrap:wrap;padding:12px 0 2px}
+.impact2 .ib b{font-family:var(--disp);font-size:22px;font-weight:800;color:var(--ink);line-height:1}
+.impact2 .ib span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+  margin-left:7px}
+.impact2 .dl{margin-left:auto;font-family:var(--disp);font-size:17px;font-weight:800;
+  padding:5px 11px;border-radius:20px;background:rgba(200,16,46,.1);color:var(--red)}
+.impact2 .dl.pos{background:rgba(46,160,90,.13);color:#2e9d5a}
+.trend{font-size:11px;font-weight:700}
+.trend.up{color:#2e9d5a}.trend.dn{color:var(--red)}.trend.fl{color:var(--muted)}
+.sbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden;min-width:70px}
+.sbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red-deep),var(--red));border-radius:4px}
 </style>
 
 <section class="hero">
@@ -616,55 +600,51 @@ const MSTATS={"1324972": {"form": [{"d": "26-04-20", "comp": "19YL", "cn": "UEFA
 /* ---- match stats blocks ---- */
 function formBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.form||!m.form.length)return "";
-  const RES={W:"Won",D:"Drew",L:"Lost"};
-  const cells=m.form.map(f=>{
-    const line=[`${f.min}'`,f.s?"started":"off the bench"];
-    if(f.g)line.push(`${f.g} goal${f.g>1?"s":""}`);
-    if(f.a)line.push(`${f.a} assist${f.a>1?"s":""}`);
-    const venue=f.v==="home"?"H":f.v==="away"?"A":"";
-    const md=f.md?` · MD${f.md}`:"";
-    const rcls=f.r==="W"?"tw":f.r==="L"?"tls":"tdr";
-    const plain=`${f.fd} — ${f.cn}${md} (${venue}) — ${RES[f.r]} ${f.sc} — ${line.join(", ")}`;
-    return `<div class="fg ${f.r}" tabindex="0" title="${esc(plain)}">
-      ${f.s?'<span class="st">ST</span>':''}
-      <div class="res">${f.r}</div><div class="sc">${esc(f.sc)}</div>
-      ${(f.g||f.a)?`<div class="ga">${f.g?f.g+"G":""}${f.g&&f.a?" ":""}${f.a?f.a+"A":""}</div>`:''}
-      <div class="mn">${f.min}'</div>
-      <div class="tip"><span class="tc">${esc(f.cn)}</span>
-        <span class="td">${esc(f.fd)}${esc(md)}${venue?` · ${venue==="H"?"home":"away"}`:""}</span>
-        <span class="tl"><b class="${rcls}">${RES[f.r]} ${esc(f.sc)}</b><br>${esc(line.join(" · "))}</span>
-      </div></div>`;
+  const rows=m.form.map(f=>{
+    const ga=(f.g||f.a)?`${f.g?f.g+"G":""}${f.g&&f.a?" ":""}${f.a?f.a+"A":""}`:"—";
+    return `<tr>
+      <td class="dt">${esc(f.fd?f.fd.slice(5):f.d)}</td>
+      <td class="cp">${esc(f.cn||f.comp)}${f.md?`<small>Matchday ${esc(f.md)}</small>`:""}</td>
+      <td class="c ha">${f.v==="home"?"H":f.v==="away"?"A":"—"}</td>
+      <td><span class="rp ${f.r}">${f.r}<span class="sc">${esc(f.sc)}</span></span></td>
+      <td class="mn">${f.min}'${f.s?'<i>ST</i>':'<i>sub</i>'}</td>
+      <td class="r ga${(f.g||f.a)?"":" z"}">${esc(ga)}</td></tr>`;
   }).join("");
   return `<div class="ct">${ICON.clock} Recent form · last ${m.form.length} games</div>
-    <div class="formstrip">${cells}</div>
-    <div class="mnote">Newest first. <b>ST</b> = started. Hover a game for the full match detail.</div>`;
+    <div class="mwrap"><table class="mtbl">
+      <thead><tr><th>Date</th><th>Competition</th><th class="c">H/A</th><th>Result</th><th>Mins</th><th class="r">G/A</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
 }
 function impactBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.impact)return "";
   const i=m.impact; if(i.ppg_start==null||i.ppg_bench==null)return "";
   const d=(i.delta>0?"+":"")+i.delta.toFixed(2);
   return `<div class="ct">${ICON.combo} Team impact</div>
-    <div class="impact">
-      <div class="ib"><b>${i.ppg_start.toFixed(2)}</b><span>pts/game starting</span></div>
-      <div class="ib"><b>${i.ppg_bench.toFixed(2)}</b><span>pts/game not starting</span></div>
-      <div class="delta ${i.delta>0?"pos":""}">${d}</div>
+    <div class="impact2">
+      <div class="ib"><b>${i.ppg_start.toFixed(2)}</b><span>pts/game he starts</span></div>
+      <div class="ib"><b>${i.ppg_bench.toFixed(2)}</b><span>pts/game he doesn't</span></div>
+      <div class="dl ${i.delta>0?"pos":""}">${d}</div>
     </div>
-    <div class="mnote">Points his club took in the ${i.n_start} games he started vs the ${i.n_bench} he didn't.
-      A positive gap suggests the team does better with him from kickoff.</div>`;
+    <div class="mnote">Points his club took across the ${i.n_start} games he started, versus the ${i.n_bench} he did not.</div>`;
 }
 function trajBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.traj||m.traj.length<2)return "";
   const mx=Math.max(...m.traj.map(s=>s.m))||1;
-  const rows=m.traj.map(s=>`<div class="trajrow"><div class="ts">${esc(s.s)}</div>
-      <div class="tbar"><i style="width:${Math.round(100*s.m/mx)}%"></i></div>
-      <div class="tv"><b>${s.a}</b> app · ${s.g}G ${s.ast}A</div></div>`).join("");
+  const rows=m.traj.map(s=>`<tr>
+      <td class="dt">${esc(s.s)}</td>
+      <td><div class="sbar"><i style="width:${Math.round(100*s.m/mx)}%"></i></div></td>
+      <td class="mn">${s.m.toLocaleString()}'</td>
+      <td class="c">${s.a}</td>
+      <td class="r ga${(s.g||s.ast)?"":" z"}">${s.g?s.g+"G":""}${s.g&&s.ast?" ":""}${s.ast?s.ast+"A":""}${(s.g||s.ast)?"":"—"}</td></tr>`).join("");
   const r=m.role||{};
-  const trend=r.min_trend==="up"?'<span style="color:var(--up)">▲ minutes rising</span>'
-    :r.min_trend==="down"?'<span style="color:var(--red)">▼ minutes falling</span>'
-    :'<span style="color:var(--muted)">▬ minutes steady</span>';
-  return `<div class="ct">${ICON.chart} Season by season</div>${rows}
-    <div class="mnote">Bar = minutes played. Started <b>${r.start_pct}%</b> of his ${r.apps} games ·
-      avg <b>${r.avg_min}'</b> · ${trend}</div>`;
+  const tc=r.min_trend==="up"?"up":r.min_trend==="down"?"dn":"fl";
+  const tt=r.min_trend==="up"?"▲ minutes rising":r.min_trend==="down"?"▼ minutes falling":"▬ minutes steady";
+  return `<div class="ct">${ICON.chart} Season by season</div>
+    <div class="mwrap"><table class="mtbl">
+      <thead><tr><th>Season</th><th>Minutes</th><th></th><th class="c">Apps</th><th class="r">G/A</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="mnote">Started <b>${r.start_pct}%</b> of his ${r.apps} games · averaging <b>${r.avg_min}'</b> ·
+      <span class="trend ${tc}">${tt}</span></div>`;
 }
 
 /* ---- modal blocks ---- */
