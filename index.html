@@ -281,7 +281,7 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .pitchinfo .lg{font:600 12px/1.4 var(--sans);color:var(--muted);margin-top:3px}
 
 /* 8 stat cards */
-.ct{font:800 11px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin:0 0 12px;display:flex;align-items:center;gap:7px}
+.ct{font:800 14px/1.2 var(--sans);letter-spacing:.10em;text-transform:uppercase;color:var(--gold);margin:0 0 16px;display:flex;align-items:center;gap:9px;padding-bottom:10px;border-bottom:2px solid var(--red)}
 .ct svg{width:15px;height:15px}
 .statcards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
 @media(max-width:460px){.statcards{grid-template-columns:repeat(2,1fr)}}
@@ -363,18 +363,20 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .mtbl .ga{font-weight:700;color:var(--red);white-space:nowrap}
 .mtbl .ga.z{color:var(--line);font-weight:400}
 .mwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-/* impact — lighter, inline, no heavy panel */
-.impact2{display:flex;gap:26px;align-items:baseline;flex-wrap:wrap;padding:12px 0 2px}
-.impact2 .ib b{font-family:var(--disp);font-size:22px;font-weight:800;color:var(--ink);line-height:1}
-.impact2 .ib span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
-  margin-left:7px}
-.impact2 .dl{margin-left:auto;font-family:var(--disp);font-size:17px;font-weight:800;
-  padding:5px 11px;border-radius:20px;background:rgba(200,16,46,.1);color:var(--red)}
-.impact2 .dl.pos{background:rgba(46,160,90,.13);color:#2e9d5a}
 .trend{font-size:11px;font-weight:700}
 .trend.up{color:#2e9d5a}.trend.dn{color:var(--red)}.trend.fl{color:var(--muted)}
 .sbar{height:6px;background:var(--line);border-radius:4px;overflow:hidden;min-width:70px}
 .sbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red-deep),var(--red));border-radius:4px}
+
+/* ---- dossier section rhythm ---- */
+.sheet-bd > .ct{margin-top:38px}
+.sheet-bd > .ct:first-of-type{margin-top:8px}
+.sheet-bd > .mwrap{margin-bottom:6px}
+.sheet-bd > .mnote{margin-bottom:4px}
+.statcards{margin-bottom:8px}
+.transfers{margin-top:38px}
+.mvbox{margin-top:38px}
+.bio{margin-top:38px}
 </style>
 
 <section class="hero">
@@ -424,7 +426,7 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 <section class="sec">
   <div class="glyphrule"><span class="g">★ ★ ★</span></div>
   <div class="eyebrow" style="margin-bottom:14px">The shortlist <span class="ar">القائمة</span></div>
-  <h2 style="font-size:clamp(28px,4.4vw,44px)">54 who can wear the red.</h2>
+  <h2 style="font-size:clamp(28px,4.4vw,44px)">62 who can wear the red.</h2>
   <p style="max-width:64ch;color:var(--muted);margin-top:12px">Dual nationals, born 1999 or later, eligible under FIFA Article&nbsp;9 and never cap-tied to a senior side.
   Those marked <b style="color:var(--gold)">raised abroad</b> are the true Hassan story. Tap any card for the full dossier &mdash;
   pitch role, career stats, transfer path and market value.</p>
@@ -458,7 +460,7 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 
 <section class="ask"><div class="sec">
   <h2>Bring home <span class="em">the next one.</span></h2>
-  <p>Hassan was one name caught by luck. This is 54 caught by method &mdash; and it refreshes every season.
+  <p>Hassan was one name caught by luck. This is 62 caught by method &mdash; and it refreshes every season.
   The next Pharaoh may be a 20-year-old in a German reserve side tonight. We know where to look.</p>
 </div></section>
 
@@ -615,18 +617,6 @@ function formBlock(p){
       <thead><tr><th>Date</th><th>Competition</th><th class="c">H/A</th><th>Result</th><th>Mins</th><th class="r">G/A</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
 }
-function impactBlock(p){
-  const m=MSTATS[p.tm_id]; if(!m||!m.impact)return "";
-  const i=m.impact; if(i.ppg_start==null||i.ppg_bench==null)return "";
-  const d=(i.delta>0?"+":"")+i.delta.toFixed(2);
-  return `<div class="ct">${ICON.combo} Team impact</div>
-    <div class="impact2">
-      <div class="ib"><b>${i.ppg_start.toFixed(2)}</b><span>pts/game he starts</span></div>
-      <div class="ib"><b>${i.ppg_bench.toFixed(2)}</b><span>pts/game he doesn't</span></div>
-      <div class="dl ${i.delta>0?"pos":""}">${d}</div>
-    </div>
-    <div class="mnote">Points his club took across the ${i.n_start} games he started, versus the ${i.n_bench} he did not.</div>`;
-}
 function trajBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.traj||m.traj.length<2)return "";
   const mx=Math.max(...m.traj.map(s=>s.m))||1;
@@ -728,7 +718,6 @@ function openModal(id){
         </div>
         ${statCards(p)}
         ${formBlock(p)}
-        ${impactBlock(p)}
         ${trajBlock(p)}
         ${transferBlock(p)}
         ${sparkline(p)}
