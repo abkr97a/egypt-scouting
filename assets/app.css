@@ -100,6 +100,13 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 
 /* ---------- POOL ---------- */
 .filters{display:flex;flex-wrap:wrap;gap:14px;margin:10px 0 32px}
+/* Chips and search on one row: both narrow the same list, so stacking them made
+   the search read as a separate section between the filters and the results.
+   The search sits right, away from the chips, and drops below them on mobile. */
+.filterbar{display:flex;align-items:center;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;margin:10px 0 32px}
+.filterbar .filters{margin:0;flex:1 1 auto}
+.filterbar .fxsearch{margin-left:auto}
 .ddl{display:inline-flex;flex-direction:column;gap:6px}
 .ddl>span{font:800 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .ddl select{font:700 14px/1 var(--sans);color:var(--ink);background:var(--stone-2);border:1.5px solid var(--line-lt);border-radius:8px;padding:11px 38px 11px 14px;cursor:pointer;
@@ -454,13 +461,22 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 
 /* ---- match cards ---- */
 #view-fix .scfilters{margin-top:22px}
-.fxtools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
-.fxsearch{flex:1 1 240px;max-width:340px;position:relative}
+.fxtools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+/* Sized to a search field, not a form input. flex-grow was 1, so it stretched to
+   the full container width and read as the page's main element rather than a
+   filter for the list below it. */
+.fxsearch{flex:0 1 300px;max-width:300px;position:relative}
 .fxsearch input{width:100%;font:400 13px/1 var(--sans);color:var(--ink);background:var(--stone-2);
-  border:1px solid var(--line);border-radius:9px;padding:11px 12px 11px 34px;outline:none}
+  border:1px solid var(--line);border-radius:8px;padding:9px 12px 9px 32px;outline:none}
 .fxsearch input:focus{border-color:var(--red)}
-.fxsearch::before{content:"";position:absolute;left:12px;top:50%;transform:translateY(-50%);
-  width:13px;height:13px;border:2px solid var(--muted);border-radius:50%;opacity:.7}
+/* A magnifying glass: circle plus handle. This was only the circle -- the ::after
+   handle was never written -- so it rendered as a bare ring that read as an
+   unchecked radio button. */
+.fxsearch::before{content:"";position:absolute;left:12px;top:50%;margin-top:-5px;
+  width:9px;height:9px;border:1.5px solid var(--muted);border-radius:50%;opacity:.85;pointer-events:none}
+.fxsearch::after{content:"";position:absolute;left:19px;top:50%;margin-top:3px;
+  width:5px;height:1.5px;background:var(--muted);transform:rotate(45deg);
+  transform-origin:left center;opacity:.85;pointer-events:none;border-radius:1px}
 :root[data-theme="light"] .fxsearch input{background:#fff}
 .fxcount{font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:16px}
 
