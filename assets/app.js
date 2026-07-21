@@ -76,11 +76,15 @@ function regionOf(p){
   return "other";
 }
 let plQuery="";
-// Name, club and country. Country is included because "who do we have in Qatar"
-// is a question a scout actually asks, and it is not answerable from the region
-// chips alone -- Gulf covers eight countries.
-function matchQuery(p){
-  const q=(plQuery||"").trim().toLowerCase();
+// One matcher for all three tabs. Name, club and country: country is included
+// because "who do we have in Qatar" is a question a scout actually asks and the
+// region chips cannot answer, since Gulf spans eight countries.
+//
+// Shared rather than duplicated -- scouting and fixtures matched only name and
+// club, so the same query returned different results per tab and their
+// placeholders promised a country search that only the shortlist performed.
+function hits(p,q){
+  q=(q||"").trim().toLowerCase();
   if(!q)return true;
   return (p.name||"").toLowerCase().includes(q)
       || (p.club||"").toLowerCase().includes(q)
@@ -88,6 +92,7 @@ function matchQuery(p){
       || (p.country_crawled||"").toLowerCase().includes(q)
       || (p.league||"").toLowerCase().includes(q);
 }
+function matchQuery(p){ return hits(p,plQuery); }
 function keep(p){
   // Search lives inside keep() deliberately: the region chips count with
   // keep(), so a query and the chip counts stay consistent. Filtering the grid
@@ -245,7 +250,7 @@ function fxBlock(){
   const q=(fxQuery||"").trim().toLowerCase();
   let rows=scRows()
     .filter(x=>fxPos==="ALL"||posGroup(x.p.position)===fxPos)
-    .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q));
+    .filter(x=>hits(x.p,q));
 
   // Each sub-tab shows ONE match, not both. Cramming a past result and a future
   // fixture into the same card put "Lost 0-4" beside "Home Aug 1" — two
@@ -378,7 +383,7 @@ let scQuery="";
 function scRows(){
   const q=(scQuery||"").trim().toLowerCase();
   return scRowsAll()
-    .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q))
+    .filter(x=>hits(x.p,q))
     .filter(x=>scRegionKeep(x.p))
     .sort((a,b)=>(b.m.status.played-a.m.status.played)||((b.m.status.g||0)-(a.m.status.g||0)));
 }

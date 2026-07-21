@@ -105,7 +105,9 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
    The search sits right, away from the chips, and drops below them on mobile. */
 .filterbar{display:flex;align-items:center;justify-content:space-between;
   gap:16px;flex-wrap:wrap;margin:10px 0 32px}
-.filterbar .filters{margin:0;flex:1 1 auto}
+/* .scfilters too: scouting and fixtures use that class for their chip rows, and
+   matching only .filters left their margins fighting the bar's own spacing. */
+.filterbar .filters,.filterbar .scfilters{margin:0;flex:1 1 auto}
 .filterbar .fxsearch{margin-left:auto}
 .ddl{display:inline-flex;flex-direction:column;gap:6px}
 .ddl>span{font:800 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
