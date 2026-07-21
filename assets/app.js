@@ -78,7 +78,9 @@ function filters(){
   // card, and USA was two players — a chip that filtered 71 down to 2 while
   // sitting beside one that did nothing. The US pair now count as European,
   // which is where their football sits.
-  const f=[["ALL","All"],["EU","European"],["GULF","Gulf"]];
+  // "Europe & Americas" rather than "European": the bucket holds two US-based
+  // players, and a label that excluded them would be wrong about its own count.
+  const f=[["ALL","All"],["EU","Europe & Americas"],["GULF","Gulf"]];
   document.getElementById("filters").innerHTML=f.map(x=>`<button class="chip" data-f="${x[0]}" aria-pressed="${x[0]===filter}">${x[1]} <span class="cnt">${n(x[0])}</span></button>`).join("");
   document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filter=b.dataset.f;filters();render();});
 }
@@ -275,7 +277,7 @@ function fxBlock(){
   const sel=document.getElementById("fxsortsel");
   if(sel)sel.onchange=e=>{fxSort=e.target.value;fxBlock();};
 
-  const rg=[["ALL","All regions"],["EU","European"],["GULF","Gulf"]];
+  const rg=[["ALL","All regions"],["EU","Europe & Americas"],["GULF","Gulf"]];
   document.getElementById("fxregion").innerHTML=rg.map(([k,l])=>{
     const n2=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
     return `<button class="chip${scRegion===k?" on":""}" data-fxr="${k}">${l} <b>${n2}</b></button>`;}).join("");
@@ -341,7 +343,7 @@ function drawScouting(){
       <div class="mwrap"><table class="mtbl sctbl">${head}<tbody>${g.map(rowHTML).join("")}</tbody></table></div></div>`;
   }).join("")||`<p class="mnote">No players match these filters.</p>`;
 
-  const rg=[["ALL","All regions"],["EU","European"],["GULF","Gulf"]];
+  const rg=[["ALL","All regions"],["EU","Europe & Americas"],["GULF","Gulf"]];
   document.getElementById("scregion").innerHTML=rg.map(([k,l])=>{
     const n=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
     return `<button class="chip${scRegion===k?" on":""}" data-scr="${k}">${l} <b>${n}</b></button>`;}).join("");
