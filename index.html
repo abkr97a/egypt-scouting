@@ -418,10 +418,13 @@ function fxBlock(){
   }).join("");
   const withNext=rows.filter(x=>NEXTM[x.p.tm_id]).length;
   document.getElementById("fixtures").innerHTML=
-    `<div class="ct">${ICON.clock} Last match &amp; next fixture <span class="gc">${withNext} scheduled</span></div>
-     <div class="mnote" style="margin:0 0 12px">The next fixture is the <b>club&rsquo;s</b> game, not a guarantee he is selected &mdash;
-     read it alongside his squad status above. Blank where a league has not published 26/27 dates yet.</div>
+    `<div class="ct">${ICON.clock} ${rows.length} players <span class="gc">${withNext} with a scheduled fixture</span></div>
      <div class="fxwrap">${cards}</div>`;
+  const rg=[["ALL","All regions"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
+  document.getElementById("fxregion").innerHTML=rg.map(([k,l])=>{
+    const n=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
+    return `<button class="chip${scRegion===k?" on":""}" data-fxr="${k}">${l} <b>${n}</b></button>`;}).join("");
+  document.querySelectorAll("#fxregion .chip").forEach(b=>b.onclick=()=>{scRegion=b.dataset.fxr;drawScouting();fxBlock();});
 }
 
 /* ---- scouting mode ---- */
@@ -519,6 +522,7 @@ function fxBlock(){
 <nav class="vtabs" id="vtabs" role="tablist">
   <button class="vtab on" data-v="list" role="tab">The shortlist <span class="vc" id="vc-list"></span></button>
   <button class="vtab" data-v="scout" role="tab">Scouting mode <span class="vc" id="vc-scout"></span></button>
+  <button class="vtab" data-v="fix" role="tab">Fixtures <span class="vc" id="vc-fix"></span></button>
 </nav>
 
 <section class="sec" id="view-list">
@@ -544,6 +548,17 @@ function fxBlock(){
   <div class="scfilters" id="scregion"></div>
   <div class="scfilters" id="scfilters"></div>
   <div id="scgroups"></div>
+</section>
+
+
+<section class="fixtures sec vhide" id="view-fix">
+  <div class="glyphrule"><span class="g">&#9733;</span></div>
+  <div class="eyebrow" style="margin-bottom:14px">Fixtures <span class="ar">&#1575;&#1604;&#1605;&#1576;&#1575;&#1585;&#1610;&#1575;&#1578;</span></div>
+  <h2 style="font-size:clamp(26px,4vw,38px)">Last match, next match.</h2>
+  <p style="max-width:66ch;color:var(--muted);margin-top:12px">Where each player has just been and where his club goes next.
+  The fixture is the <b>club&rsquo;s</b> game &mdash; it says they play on Saturday, not that he is picked; read it against his
+  squad status under Scouting mode. Blank where a league has not published 26/27 dates yet.</p>
+  <div class="scfilters" id="fxregion"></div>
   <div id="fixtures"></div>
 </section>
 
@@ -822,19 +837,23 @@ function drawScouting(){
 }
 /* ---- view tabs ---- */
 function setView(v){
-  const list=document.getElementById("view-list");
-  const scout=document.getElementById("scouting");
-  if(list)list.classList.toggle("vhide",v!=="list");
-  if(scout)scout.classList.toggle("vhide",v!=="scout");
+  const map={list:"view-list",scout:"scouting",fix:"view-fix"};
+  Object.entries(map).forEach(([key,id])=>{
+    const el=document.getElementById(id);
+    if(el)el.classList.toggle("vhide",key!==v);
+  });
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  try{history.replaceState(null,"",v==="scout"?"#scouting":"#shortlist");}catch(e){}
+  const hash={list:"#shortlist",scout:"#scouting",fix:"#fixtures"}[v]||"#shortlist";
+  try{history.replaceState(null,"",hash);}catch(e){}
 }
 function initTabs(){
-  const cl=document.getElementById("vc-list"), cs=document.getElementById("vc-scout");
-  if(cl)cl.textContent=DATA.length;
-  if(cs)cs.textContent=DATA.filter(p=>MSTATS[p.tm_id]&&MSTATS[p.tm_id].status&&MSTATS[p.tm_id].status.n).length;
+  const withStats=DATA.filter(p=>MSTATS[p.tm_id]&&MSTATS[p.tm_id].status&&MSTATS[p.tm_id].status.n).length;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set("vc-list",DATA.length); set("vc-scout",withStats);
+  set("vc-fix",DATA.filter(p=>NEXTM[p.tm_id]).length);
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
-  setView(location.hash==="#scouting"?"scout":"list");
+  const from={"#scouting":"scout","#fixtures":"fix"}[location.hash]||"list";
+  setView(from);
 }
 
 /* ---- modal blocks ---- */
