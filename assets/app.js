@@ -192,9 +192,9 @@ function fxBlock(){
           <span>${last.v==="home"?"home":"away"}</span></div></div>`
       :`<div class="fxm"><span class="fxlab">Last match</span><div class="fxnone">No recorded match.</div></div>`;
     const nextM=n?`<div class="fxm"><span class="fxlab">Next match</span>
-        <div class="fxvs">${team(own,p.club,false)}
+        <div class="fxvs">${team(n.sid||own,p.club,false)}
           <span class="fxscore soon">${esc(n.ha==="A"?"away":n.ha==="H"?"home":"vs")}</span>
-          ${team("",n.opp,true)}</div>
+          ${team(n.oid||"",n.opp,true)}</div>
         <div class="fxmeta"><span><b>${esc(n.date)}</b></span>${n.time?`<span>${esc(n.time)}</span>`:""}</div></div>`
       :`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">Fixture not published yet.</div></div>`;
     const freeAgent=/free agent|without club/i.test(p.club||"");
