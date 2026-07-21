@@ -448,10 +448,24 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .fxc:hover{border-color:var(--red);box-shadow:0 4px 18px rgba(0,0,0,.06)}
 :root[data-theme="light"] .fxc{background:#fff;border-color:var(--line-lt)}
 
-/* header: crest, name, meta */
+/* Region stripe. The dossier splits into a Gulf cohort and a Europe/Americas one
+   that are scouted differently, so the grouping earns a visual channel rather than
+   another column. Kept to a 3px edge: the card's job is still the match result. */
+.fxc{border-left:3px solid transparent}
+.fxc.r-gulf{border-left-color:var(--gold)}
+.fxc.r-eu{border-left-color:var(--up)}
+.fxc.r-other{border-left-color:var(--line)}
+
+/* header: face, crest, name, meta */
 .fxhd{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;
   border-bottom:1px solid var(--line)}
-.fxhd img{width:34px;height:34px;object-fit:contain;flex:none}
+/* Portrait is cropped (cover), crests are letterboxed (contain) -- a shared rule
+   would squash one or the other, since TM portraits are 3:4 and crests square. */
+.fxface{width:38px;height:38px;flex:none;border-radius:9px;object-fit:cover;
+  background:var(--stone-3,var(--stone-2));border:1px solid var(--line)}
+.fxface.ini{display:inline-flex;align-items:center;justify-content:center;
+  font:800 13px/1 var(--sans);color:var(--muted);letter-spacing:.02em}
+.fxhd img:not(.fxface){width:26px;height:26px;object-fit:contain;flex:none}
 .fxhd .nm{font-weight:800;color:var(--ink);font-size:15px;line-height:1.3;min-width:0}
 .fxhd .nm small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:3px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

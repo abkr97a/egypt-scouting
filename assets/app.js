@@ -58,18 +58,29 @@ function posMeta(pos){const p=(pos||"").toLowerCase();
 /* ---- filters ---- */
 const EU=new Set(["Germany","Belgium","England","Switzerland","Spain","France","Greece","Portugal","Turkey","Italy","Netherlands","Sweden","Austria","Denmark","Norway","Finland","Scotland","Ireland","Poland","Czech Republic","Slovakia","Cyprus","Romania","Bulgaria","Albania","Hungary"])
 const GULF=new Set(["Qatar","United Arab Emirates","Saudi Arabia","Kuwait","Bahrain","Oman","Jordan","Iraq"]);;
-function keep(p){
-  if(filter==="ALL")return true;
-  // Resolve the region from where he plays; fall back to his non-Egyptian
-  // passport when the country crawled is not itself a region (e.g. a
-  // Dutch-Egyptian playing in Romania).
-  const rc=EU.has(p.country_crawled)||GULF.has(p.country_crawled)||p.country_crawled==="United States"
+// Resolve the region from where he plays; fall back to his non-Egyptian
+// passport when the country crawled is not itself a region (e.g. a
+// Dutch-Egyptian playing in Romania).
+function homeCountry(p){
+  return EU.has(p.country_crawled)||GULF.has(p.country_crawled)||p.country_crawled==="United States"
     ?p.country_crawled
     :(p.citizenship.split("/").map(s=>s.trim()).find(c=>c!=="Egypt")||p.country_crawled);
+}
+// "eu" | "gulf" | "other". Shares homeCountry() with keep() deliberately: when the
+// card stripe and the region chips disagree the UI is lying, and duplicated
+// classification logic is how they drift apart.
+function regionOf(p){
+  const rc=homeCountry(p);
+  if(GULF.has(rc))return "gulf";
+  if(EU.has(rc)||rc==="United States")return "eu";
+  return "other";
+}
+function keep(p){
+  if(filter==="ALL")return true;
   // USA folds into European: two players did not warrant their own chip, and
   // MLS/USL sit closer to the European game than to the Gulf.
-  if(filter==="EU")return EU.has(rc)||rc==="United States";
-  if(filter==="GULF")return GULF.has(rc);
+  if(filter==="EU")return regionOf(p)==="eu";
+  if(filter==="GULF")return regionOf(p)==="gulf";
   return true;
 }
 function filters(){
@@ -252,7 +263,18 @@ function fxBlock(){
     }
 
     const clubLine=freeAgent?'<b class="fa">Free agent</b>':esc(p.club||"");
-    return `<div class="fxc"><div class="fxhd">${freeAgent?'<span class="faico">FA</span>':crest(own)}
+    // Portrait where we have one, initials where we don't. 8 of the newest players
+    // carry no photo on TM, and an empty <img> box reads as a broken card.
+    const face=p.photo
+      ? `<img class="fxface" src="${p.photo}" alt="" loading="lazy">`
+      : `<span class="fxface ini">${esc((p.name||"?").split(/\s+/).map(w=>w[0]).slice(0,2).join(""))}</span>`;
+    // Region stripe: the dossier splits naturally into a Gulf cohort and a
+    // Europe/Americas one, and they are scouted differently -- different leagues,
+    // different travel, different competition for the player. Colour carries that
+    // grouping without spending a column on it.
+    const reg=regionOf(p);
+    return `<div class="fxc r-${reg}"><div class="fxhd">${face}
+        ${freeAgent?'<span class="faico">FA</span>':crest(own)}
         <div class="nm">${esc(p.name)}<small>${esc(p.age)} · ${esc(p.position||"")} · ${clubLine}</small></div></div>
       ${body}</div>`;
   }).join("");
