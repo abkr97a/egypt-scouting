@@ -60,13 +60,25 @@ const EU=new Set(["Germany","Belgium","England","Switzerland","Spain","France","
 const GULF=new Set(["Qatar","United Arab Emirates","Saudi Arabia","Kuwait","Bahrain","Oman","Jordan","Iraq"]);;
 function keep(p){
   if(filter==="ALL")return true;
-  if(filter==="DIA")return dia(p);
-  const rc=EU.has(p.country_crawled)||GULF.has(p.country_crawled)||p.country_crawled==="United States"?p.country_crawled:(p.citizenship.split("/").map(s=>s.trim()).find(c=>c!=="Egypt")||p.country_crawled);if(filter==="EU")return EU.has(rc);if(filter==="USA")return rc==="United States";if(filter==="GULF")return GULF.has(rc);
+  // Resolve the region from where he plays; fall back to his non-Egyptian
+  // passport when the country crawled is not itself a region (e.g. a
+  // Dutch-Egyptian playing in Romania).
+  const rc=EU.has(p.country_crawled)||GULF.has(p.country_crawled)||p.country_crawled==="United States"
+    ?p.country_crawled
+    :(p.citizenship.split("/").map(s=>s.trim()).find(c=>c!=="Egypt")||p.country_crawled);
+  // USA folds into European: two players did not warrant their own chip, and
+  // MLS/USL sit closer to the European game than to the Gulf.
+  if(filter==="EU")return EU.has(rc)||rc==="United States";
+  if(filter==="GULF")return GULF.has(rc);
   return true;
 }
 function filters(){
   const n=k=>DATA.filter(p=>{const s=filter;filter=k;const r=keep(p);filter=s;return r;}).length;
-  const f=[["ALL","All"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
+  // Two regions, not four. "Raised abroad" duplicated a badge already on every
+  // card, and USA was two players — a chip that filtered 71 down to 2 while
+  // sitting beside one that did nothing. The US pair now count as European,
+  // which is where their football sits.
+  const f=[["ALL","All"],["EU","European"],["GULF","Gulf"]];
   document.getElementById("filters").innerHTML=f.map(x=>`<button class="chip" data-f="${x[0]}" aria-pressed="${x[0]===filter}">${x[1]} <span class="cnt">${n(x[0])}</span></button>`).join("");
   document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filter=b.dataset.f;filters();render();});
 }
@@ -263,7 +275,7 @@ function fxBlock(){
   const sel=document.getElementById("fxsortsel");
   if(sel)sel.onchange=e=>{fxSort=e.target.value;fxBlock();};
 
-  const rg=[["ALL","All regions"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
+  const rg=[["ALL","All regions"],["EU","European"],["GULF","Gulf"]];
   document.getElementById("fxregion").innerHTML=rg.map(([k,l])=>{
     const n2=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
     return `<button class="chip${scRegion===k?" on":""}" data-fxr="${k}">${l} <b>${n2}</b></button>`;}).join("");
@@ -329,7 +341,7 @@ function drawScouting(){
       <div class="mwrap"><table class="mtbl sctbl">${head}<tbody>${g.map(rowHTML).join("")}</tbody></table></div></div>`;
   }).join("")||`<p class="mnote">No players match these filters.</p>`;
 
-  const rg=[["ALL","All regions"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
+  const rg=[["ALL","All regions"],["EU","European"],["GULF","Gulf"]];
   document.getElementById("scregion").innerHTML=rg.map(([k,l])=>{
     const n=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
     return `<button class="chip${scRegion===k?" on":""}" data-scr="${k}">${l} <b>${n}</b></button>`;}).join("");
