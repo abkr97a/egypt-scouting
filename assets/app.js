@@ -315,34 +315,28 @@ function fxBlock(){
   if(box&&!box._wired){box._wired=1;box.oninput=e=>{fxQuery=e.target.value;fxBlock();};}
 }
 
-let scFilter="ALL";
 let scRegion="ALL";
 function scRegionKeep(p){
   if(scRegion==="ALL")return true;
   const saved=filter; filter=scRegion;      // reuse the shortlist's own region logic
   const r=keep(p); filter=saved; return r;
 }
-// Every player the Scouting tab can show, before the region/form chips narrow it.
+// Every player the Scouting tab can show, before region and search narrow it.
 // The tab badge counts this, so the badge and the table are the same population by
 // construction -- they previously used separate expressions and drifted apart.
 function scRowsAll(){
   return DATA.map(p=>({p,m:MSTATS[p.tm_id]}))
     .filter(x=>x.m&&x.m.status&&x.m.status.n);
 }
-let scQuery=""; let scPos="ALL";
+let scQuery="";
+// Position and form chips were removed, so their state variables went with them
+// rather than staying as branches that can never fire. The table still groups by
+// position, which is what the position chips were duplicating.
 function scRows(){
   const q=(scQuery||"").trim().toLowerCase();
   return scRowsAll()
-    .filter(x=>scPos==="ALL"||posGroup(x.p.position)===scPos)
     .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q))
     .filter(x=>scRegionKeep(x.p))
-    .filter(x=>{
-      const s=x.m.status;
-      if(scFilter==="HOT")return s.played>=7;
-      if(scFilter==="COLD")return s.out>=5;
-      if(scFilter==="SCORING")return (s.g||0)+(s.a||0)>0;
-      return true;
-    })
     .sort((a,b)=>(b.m.status.played-a.m.status.played)||((b.m.status.g||0)-(a.m.status.g||0)));
 }
 function scSignal(s){
@@ -380,18 +374,12 @@ function drawScouting(){
     const n=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
     return `<button class="chip${scRegion===k?" on":""}" data-scr="${k}">${l} <b>${n}</b></button>`;}).join("");
   document.querySelectorAll("#scregion .chip").forEach(b=>b.onclick=()=>{scRegion=b.dataset.scr;drawScouting();});
-  const f=[["ALL","All"],["HOT","Regulars"],["SCORING","Scoring"],["COLD","Out of favour"]];
-  document.getElementById("scfilters").innerHTML=f.map(x=>{
-    const n=(()=>{const o=scFilter;scFilter=x[0];const c=scRows().length;scFilter=o;return c;})();
-    return `<button class="chip${scFilter===x[0]?" on":""}" data-sc="${x[0]}">${x[1]} <b>${n}</b></button>`;}).join("")
-    +`<div class="sclegend"><span><i style="background:#2e9d5a"></i>played</span><span><i style="background:#d9a441"></i>benched</span><span><i class="O" style="background:var(--line)"></i>not in squad</span><span>newest first \u00b7 hover a block for the match</span></div>`;
-  document.querySelectorAll("#scfilters .chip").forEach(b=>b.onclick=()=>{scFilter=b.dataset.sc;drawScouting();});
-
-  const pg=[["ALL","All positions"],["Goalkeeper","Goalkeepers"],["Defender","Defenders"],["Midfielder","Midfielders"],["Attacker","Attackers"]];
-  document.getElementById("scpos").innerHTML=pg.map(([k,l])=>{
-    const n=(()=>{const o=scPos;scPos=k;const c=scRows().length;scPos=o;return c;})();
-    return `<button class="chip${scPos===k?" on":""}" data-scp="${k}">${l} <b>${n}</b></button>`;}).join("");
-  document.querySelectorAll("#scpos .chip").forEach(b=>b.onclick=()=>{scPos=b.dataset.scp;drawScouting();});
+  // Position and form chips removed: the table already groups by position, so the
+  // position row restated the headings, and search covers finding a player faster
+  // than either chip row did. The strip legend stays -- it explains the colours,
+  // which nothing else on the page does.
+  const legend=document.getElementById("sclegend");
+  if(legend)legend.innerHTML=`<span><i style="background:#2e9d5a"></i>played</span><span><i style="background:#d9a441"></i>benched</span><span><i class="O" style="background:var(--line)"></i>not in squad</span><span>newest first \u00b7 hover a block for the match</span>`;
 
   // Wire once and never re-render the input: rebuilding it on every keystroke
   // would drop focus and the caret mid-word.
