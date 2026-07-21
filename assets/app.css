@@ -126,6 +126,10 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
    unselected chip look active beside the genuinely selected one — two red-ish
    outlines at once. Keyboard focus still shows, via :focus-visible below. */
 .chip:focus{outline:none}
+
+/* club crest on the shortlist card footer, beside the club name */
+.pc-foot .club{display:flex;align-items:center;gap:7px;min-width:0}
+.ccrest{width:17px;height:17px;object-fit:contain;flex:none}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .chip .cnt{min-width:20px;text-align:center;padding:1px 6px;border-radius:99px;font:800 11px/1.5 var(--mono);background:rgba(138,127,102,.25)}
 .chip[aria-pressed="true"] .cnt{background:var(--stone);color:var(--gold)}

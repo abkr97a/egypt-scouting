@@ -107,7 +107,7 @@ function cardHTML(p){
         <div class="pmc g"><b>${s.g}</b><span>Goals</span></div>
         <div class="pmc"><b>${s.as}</b><span>Assists</span></div>
       </div>
-      <div class="pc-foot"><div class="clubcol"><span class="club">${esc(p.club)}</span><span class="clubmeta">${FLAGS[p.country_crawled]?`<img class="cflag" src="${FLAGS[p.country_crawled]}" alt="">`:""}${esc(p.league||"")}${LGTIER[p.league]?` · <b>T${LGTIER[p.league]}</b>`:""}</span></div><span class="val">${val(p.market_value_eur)}</span></div>
+      <div class="pc-foot"><div class="clubcol"><span class="club">${CRESTS[p.club_id]?`<img class="ccrest" src="${CRESTS[p.club_id]}" alt="">`:""}${esc(p.club)}</span><span class="clubmeta">${FLAGS[p.country_crawled]?`<img class="cflag" src="${FLAGS[p.country_crawled]}" alt="">`:""}${esc(p.league||"")}${LGTIER[p.league]?` · <b>T${LGTIER[p.league]}</b>`:""}</span></div><span class="val">${val(p.market_value_eur)}</span></div>
     </div>
   </article>`;
 }
