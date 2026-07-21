@@ -329,8 +329,12 @@ function scRowsAll(){
   return DATA.map(p=>({p,m:MSTATS[p.tm_id]}))
     .filter(x=>x.m&&x.m.status&&x.m.status.n);
 }
+let scQuery=""; let scPos="ALL";
 function scRows(){
+  const q=(scQuery||"").trim().toLowerCase();
   return scRowsAll()
+    .filter(x=>scPos==="ALL"||posGroup(x.p.position)===scPos)
+    .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q))
     .filter(x=>scRegionKeep(x.p))
     .filter(x=>{
       const s=x.m.status;
@@ -382,6 +386,17 @@ function drawScouting(){
     return `<button class="chip${scFilter===x[0]?" on":""}" data-sc="${x[0]}">${x[1]} <b>${n}</b></button>`;}).join("")
     +`<div class="sclegend"><span><i style="background:#2e9d5a"></i>played</span><span><i style="background:#d9a441"></i>benched</span><span><i class="O" style="background:var(--line)"></i>not in squad</span><span>newest first \u00b7 hover a block for the match</span></div>`;
   document.querySelectorAll("#scfilters .chip").forEach(b=>b.onclick=()=>{scFilter=b.dataset.sc;drawScouting();});
+
+  const pg=[["ALL","All positions"],["Goalkeeper","Goalkeepers"],["Defender","Defenders"],["Midfielder","Midfielders"],["Attacker","Attackers"]];
+  document.getElementById("scpos").innerHTML=pg.map(([k,l])=>{
+    const n=(()=>{const o=scPos;scPos=k;const c=scRows().length;scPos=o;return c;})();
+    return `<button class="chip${scPos===k?" on":""}" data-scp="${k}">${l} <b>${n}</b></button>`;}).join("");
+  document.querySelectorAll("#scpos .chip").forEach(b=>b.onclick=()=>{scPos=b.dataset.scp;drawScouting();});
+
+  // Wire once and never re-render the input: rebuilding it on every keystroke
+  // would drop focus and the caret mid-word.
+  const box=document.getElementById("scq");
+  if(box&&!box._wired){box._wired=1;box.oninput=e=>{scQuery=e.target.value;drawScouting();};}
   fxBlock();
 }
 /* ---- keep every displayed number derived from DATA ---- */
