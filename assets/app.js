@@ -168,72 +168,100 @@ function trajBlock(p){
 }
 
 
+let fxView="prev";
+let fxSort="date";
 let fxQuery=""; let fxPos="ALL";
 const BLANK="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
 
 
 
 /* ---- last / next match cards ---- */
+const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+function fxDate(s){                       // "Aug 29, 2026" or "2026-04-17" -> epoch
+  if(!s)return 0;
+  const iso=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if(iso)return Date.UTC(+iso[1],+iso[2]-1,+iso[3]);
+  const m=/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4})$/.exec(s);
+  return m?Date.UTC(+m[3],MON[m[1]],+m[2]):0;
+}
+
 function fxBlock(){
   const q=(fxQuery||"").trim().toLowerCase();
-  const rows=scRows()
+  let rows=scRows()
     .filter(x=>fxPos==="ALL"||posGroup(x.p.position)===fxPos)
     .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q));
-  const crest=id=>CRESTS[id]?`<img src="${CRESTS[id]}" alt="">`:`<img src="${BLANK}" alt="">`;
 
-  // One row per team, each with its own score. The old layout squeezed both
-  // clubs and a score pill into three columns, so long names were truncated to
-  // "1.FC Phönix Lüb…" and the eye had nowhere to rest.
+  // Each sub-tab shows ONE match, not both. Cramming a past result and a future
+  // fixture into the same card put "Lost 0-4" beside "Home Aug 1" — two
+  // unrelated facts competing for the same eye.
+  const upcoming = fxView==="next";
+  rows = rows.filter(({p,m})=> upcoming
+      ? !!NEXTM[p.tm_id]
+      : !!(m.form||[])[0]);
+
+  const key = ({p,m}) => {
+    if(fxSort==="pos")  return posGroup(p.position)+"|"+p.name;
+    if(fxSort==="name") return p.name;
+    const d = upcoming ? fxDate((NEXTM[p.tm_id]||{}).date) : fxDate(((m.form||[])[0]||{}).fd);
+    return d;                              // date
+  };
+  rows.sort((a,b)=>{
+    const ka=key(a), kb=key(b);
+    if(typeof ka==="number") return upcoming ? ka-kb : kb-ka;   // soonest first / most recent first
+    return String(ka).localeCompare(String(kb));
+  });
+
+  const crest=id=>CRESTS[id]?`<img src="${CRESTS[id]}" alt="">`:`<img src="${BLANK}" alt="">`;
   const side=(id,name,score,won)=>`<div class="fxteam${won?" win":""}">${crest(id)}
       <span>${esc(name||"—")}</span>${score!==null?`<b class="sc1">${score}</b>`:""}</div>`;
 
   const cards=rows.map(({p,m})=>{
-    const last=(m.form||[])[0], n=NEXTM[p.tm_id], own=m.ownid;
     const freeAgent=/free agent|without club/i.test(p.club||"");
+    const own=m.ownid;
+    let body="";
 
-    let lastM;
-    if(last){
+    if(upcoming){
+      const n=NEXTM[p.tm_id];
+      const venue=n.ha==="H"?"Home":n.ha==="A"?"Away":"";
+      body=`<div class="fxm">
+        <div class="fxwhen">${esc(n.date)}${n.time?` · <b>${esc(n.time)}</b>`:""}${venue?` · ${venue}`:""}</div>
+        <div class="fxvs">${side(n.sid||own,p.club,null,false)}${side(n.oid,n.opp,null,false)}</div></div>`;
+    }else{
+      const last=(m.form||[])[0];
       const [a,b]=String(last.sc||"0-0").split("-").map(x=>parseInt(x,10)||0);
       const verdict=last.r==="W"?"Won":last.r==="D"?"Drew":"Lost";
-      lastM=`<div class="fxm"><span class="fxlab">Last match</span>
-        <span class="fxstate ${last.r}">${verdict} ${esc(last.sc)}</span>
-        <div class="fxvs">
-          ${side(last.sid||own,last.side||p.club,a,a>b)}
-          ${side(last.oid,last.opp||last.cn,b,b>a)}
-        </div>
-        <div class="fxmeta"><span>${esc(last.fd)}</span><span>${esc(last.cn||"")}</span>
-          <span><b>${last.min}'</b></span>${last.g?`<span><b>${last.g}G</b></span>`:""}${last.a?`<span><b>${last.a}A</b></span>`:""}
-          <span>${last.v==="home"?"home":"away"}</span></div></div>`;
-    }else{
-      lastM=`<div class="fxm"><span class="fxlab">Last match</span><div class="fxnone">No recorded match.</div></div>`;
-    }
-
-    let nextM;
-    if(freeAgent){
-      nextM=`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">No club — free agent.</div></div>`;
-    }else if(n){
-      const venue=n.ha==="H"?"Home":n.ha==="A"?"Away":"Scheduled";
-      nextM=`<div class="fxm"><span class="fxlab">Next match</span>
-        <span class="fxstate soon">${venue} · ${esc(n.date)}</span>
-        <div class="fxvs">
-          ${side(n.sid||own,p.club,null,false)}
-          ${side(n.oid,n.opp,null,false)}
-        </div>
-        <div class="fxmeta">${n.time?`<span>Kick-off <b>${esc(n.time)}</b></span>`:""}</div></div>`;
-    }else{
-      nextM=`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">Fixture not published yet.</div></div>`;
+      body=`<div class="fxm">
+        <div class="fxwhen"><span class="res ${last.r}">${verdict} ${esc(last.sc)}</span>
+          ${esc(last.fd)} · ${last.v==="home"?"home":"away"}</div>
+        <div class="fxvs">${side(last.sid||own,last.side||p.club,a,a>b)}${side(last.oid,last.opp||last.cn,b,b>a)}</div>
+        <div class="fxmeta"><span>${esc(last.cn||"")}</span><span><b>${last.min}'</b></span>${last.g?`<span><b>${last.g}G</b></span>`:""}${last.a?`<span><b>${last.a}A</b></span>`:""}</div></div>`;
     }
 
     const clubLine=freeAgent?'<b class="fa">Free agent</b>':esc(p.club||"");
     return `<div class="fxc"><div class="fxhd">${freeAgent?'<span class="faico">FA</span>':crest(own)}
         <div class="nm">${esc(p.name)}<small>${esc(p.age)} · ${esc(p.position||"")} · ${clubLine}</small></div></div>
-      ${lastM}${nextM}</div>`;
+      ${body}</div>`;
   }).join("");
 
-  const withNext=rows.filter(x=>NEXTM[x.p.tm_id]).length;
+  const nPrev=scRows().filter(x=>(x.m.form||[])[0]).length;
+  const nNext=scRows().filter(x=>NEXTM[x.p.tm_id]).length;
   document.getElementById("fixtures").innerHTML=
-    `<div class="fxcount">${rows.length} player${rows.length===1?"":"s"} · ${withNext} with a scheduled fixture</div>
+    `<div class="fxsubs">
+       <button class="sub${fxView==="prev"?" on":""}" data-fxv="prev">Previous match <b>${nPrev}</b></button>
+       <button class="sub${fxView==="next"?" on":""}" data-fxv="next">Upcoming match <b>${nNext}</b></button>
+       <div class="fxsort"><label>Sort
+         <select id="fxsortsel">
+           <option value="date"${fxSort==="date"?" selected":""}>${upcoming?"Soonest first":"Most recent first"}</option>
+           <option value="pos"${fxSort==="pos"?" selected":""}>Position</option>
+           <option value="name"${fxSort==="name"?" selected":""}>Name</option>
+         </select></label></div>
+     </div>
+     <div class="fxcount">${rows.length} shown</div>
      <div class="fxwrap">${cards||`<p class="mnote">No players match these filters.</p>`}</div>`;
+
+  document.querySelectorAll("#fixtures .sub").forEach(b=>b.onclick=()=>{fxView=b.dataset.fxv;fxBlock();});
+  const sel=document.getElementById("fxsortsel");
+  if(sel)sel.onchange=e=>{fxSort=e.target.value;fxBlock();};
 
   const rg=[["ALL","All regions"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
   document.getElementById("fxregion").innerHTML=rg.map(([k,l])=>{
