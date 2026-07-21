@@ -115,7 +115,17 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
    chips use a .on class. Both need the same treatment, or a selected chip in
    those sections looks unselected. */
 .chip[aria-pressed="true"],.chip.on{background:var(--gold);color:var(--stone);border-color:var(--gold)}
-.chip.on b{background:var(--stone);color:var(--gold)}
+
+/* The count bubble: .cnt in the shortlist, a bare <b> in the newer sections.
+   Style both the same so the two filter rows read as one system. */
+.chip b{min-width:20px;text-align:center;padding:1px 6px;border-radius:99px;
+  font:800 11px/1.5 var(--mono);background:rgba(138,127,102,.25)}
+.chip[aria-pressed="true"] b,.chip.on b{background:var(--stone);color:var(--gold)}
+
+/* Clicking a button leaves it focused, and the browser's default ring made an
+   unselected chip look active beside the genuinely selected one — two red-ish
+   outlines at once. Keyboard focus still shows, via :focus-visible below. */
+.chip:focus{outline:none}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .chip .cnt{min-width:20px;text-align:center;padding:1px 6px;border-radius:99px;font:800 11px/1.5 var(--mono);background:rgba(138,127,102,.25)}
 .chip[aria-pressed="true"] .cnt{background:var(--stone);color:var(--gold)}
