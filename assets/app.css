@@ -171,6 +171,12 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 /* Manual entries. Outlined rather than filled: the card should read as "this one
    came from you, not the crawl" without competing with the passport chips beside
    it. The note carries the eligibility claim, so it travels with the player. */
+/* Stand-in for a club with no crest on file. Same box as the <img> it replaces,
+   so rows stay aligned whether or not a badge exists. */
+.crx{width:24px;height:24px;flex:none;border-radius:5px;display:inline-flex;
+  align-items:center;justify-content:center;font:800 11px/1 var(--sans);
+  color:var(--muted);background:rgba(128,128,128,.14);border:1px solid var(--line)}
+
 /* Involvement pill on a fixture card. Amber for an unused sub, grey for left out
    entirely -- the same reading the squad strip gives, so the two tabs agree. */
 .pw{font:800 9.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;

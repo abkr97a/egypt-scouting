@@ -240,8 +240,14 @@ function fxBlock(){
     return String(ka).localeCompare(String(kb));
   });
 
-  const crest=id=>CRESTS[id]?`<img src="${CRESTS[id]}" alt="">`:`<img src="${BLANK}" alt="">`;
-  const side=(id,name,score,won)=>`<div class="fxteam${won?" win":""}">${crest(id)}
+  // A missing crest used to render a 1x1 transparent GIF, leaving an invisible
+  // gap where a badge belongs -- it read as a broken image rather than as a club
+  // we simply have no badge for. Fall back to the club's initial so the row still
+  // lines up and still identifies the team.
+  const crest=(id,name)=>CRESTS[id]
+    ? `<img src="${CRESTS[id]}" alt="">`
+    : `<span class="crx">${esc((name||"?").replace(/^(FC|SC|SV|AC|AS|CD|CF)\s+/i,"").trim().charAt(0).toUpperCase()||"?")}</span>`;
+  const side=(id,name,score,won)=>`<div class="fxteam${won?" win":""}">${crest(id,name)}
       <span>${esc(name||"—")}</span>${score!==null?`<b class="sc1">${score}</b>`:""}</div>`;
 
   const cards=rows.map(({p,m})=>{
