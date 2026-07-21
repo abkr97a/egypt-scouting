@@ -414,6 +414,22 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .sclegend{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .sclegend span{display:inline-flex;align-items:center;gap:6px}
 .sclegend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+
+/* ---- view tabs ---- */
+.vtabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+  margin:0 auto 6px;max-width:1140px;padding:0 24px}
+.vtab{appearance:none;background:none;border:0;cursor:pointer;font:800 13px/1 var(--sans);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:15px 4px 13px;
+  margin-right:26px;border-bottom:3px solid transparent;transition:color .15s,border-color .15s}
+.vtab:hover{color:var(--ink)}
+.vtab.on{color:var(--red);border-bottom-color:var(--red)}
+.vtab .vc{display:inline-block;margin-left:8px;font-size:11px;font-weight:700;
+  background:var(--stone-2);color:var(--muted);border-radius:20px;padding:3px 8px;
+  vertical-align:middle;letter-spacing:0}
+:root[data-theme="light"] .vtab .vc{background:#f0ecea}
+.vtab.on .vc{background:rgba(200,16,46,.12);color:var(--red)}
+.vhide{display:none}
+@media(max-width:620px){.vtab{margin-right:16px;font-size:12px}}
 </style>
 
 <section class="hero">
@@ -460,7 +476,13 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
   <div class="bstat"><b>44</b><span>raised abroad</span></div>
 </div></div></section>
 
-<section class="sec">
+
+<nav class="vtabs" id="vtabs" role="tablist">
+  <button class="vtab on" data-v="list" role="tab">The shortlist <span class="vc" id="vc-list"></span></button>
+  <button class="vtab" data-v="scout" role="tab">Scouting mode <span class="vc" id="vc-scout"></span></button>
+</nav>
+
+<section class="sec" id="view-list">
   <div class="glyphrule"><span class="g">★ ★ ★</span></div>
   <div class="eyebrow" style="margin-bottom:14px">The shortlist <span class="ar">القائمة</span></div>
   <h2 style="font-size:clamp(28px,4.4vw,44px)">70 who can wear the red.</h2>
@@ -749,6 +771,24 @@ function drawScouting(){
   document.querySelectorAll("#scfilters .chip").forEach(b=>b.onclick=()=>{scFilter=b.dataset.sc;drawScouting();});
 }
 
+
+/* ---- view tabs ---- */
+function setView(v){
+  const list=document.getElementById("view-list");
+  const scout=document.getElementById("scouting");
+  if(list)list.classList.toggle("vhide",v!=="list");
+  if(scout)scout.classList.toggle("vhide",v!=="scout");
+  document.querySelectorAll("#vtabs .vtab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  try{history.replaceState(null,"",v==="scout"?"#scouting":"#shortlist");}catch(e){}
+}
+function initTabs(){
+  const cl=document.getElementById("vc-list"), cs=document.getElementById("vc-scout");
+  if(cl)cl.textContent=DATA.length;
+  if(cs)cs.textContent=DATA.filter(p=>MSTATS[p.tm_id]&&MSTATS[p.tm_id].status&&MSTATS[p.tm_id].status.n).length;
+  document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+  setView(location.hash==="#scouting"?"scout":"list");
+}
+
 /* ---- modal blocks ---- */
 function pitchSvg(pos){const m=posMeta(pos);
   return `<div class="pitch"><div class="box t"></div><div class="box b"></div><div class="dot" style="left:${m.x}%;top:${m.y}%">${m.abbr}</div></div>`;}
@@ -901,6 +941,7 @@ function drawAnalytics(){
 filters();render();
 aChips();drawAnalytics();
 drawScouting();
+initTabs();
 </script>
 
 <!-- GoatCounter analytics (privacy-friendly, no cookies) -->
