@@ -75,7 +75,24 @@ function regionOf(p){
   if(EU.has(rc)||rc==="United States")return "eu";
   return "other";
 }
+let plQuery="";
+// Name, club and country. Country is included because "who do we have in Qatar"
+// is a question a scout actually asks, and it is not answerable from the region
+// chips alone -- Gulf covers eight countries.
+function matchQuery(p){
+  const q=(plQuery||"").trim().toLowerCase();
+  if(!q)return true;
+  return (p.name||"").toLowerCase().includes(q)
+      || (p.club||"").toLowerCase().includes(q)
+      || (p.citizenship||"").toLowerCase().includes(q)
+      || (p.country_crawled||"").toLowerCase().includes(q)
+      || (p.league||"").toLowerCase().includes(q);
+}
 function keep(p){
+  // Search lives inside keep() deliberately: the region chips count with
+  // keep(), so a query and the chip counts stay consistent. Filtering the grid
+  // separately would leave "Gulf 24" beside 3 visible cards.
+  if(!matchQuery(p))return false;
   if(filter==="ALL")return true;
   // USA folds into European: two players did not warrant their own chip, and
   // MLS/USL sit closer to the European game than to the Gulf.
@@ -137,6 +154,16 @@ function secOf(pos){const ab=posMeta(pos).abbr;const s=SECTIONS.find(z=>z.abbrs.
 function render(){
   const rows=DATA.filter(keep);
   const host=document.getElementById("grid");
+
+  // Wire once, never re-render: rebuilding the input inside render() would drop
+  // focus and the caret on every keystroke.
+  const box=document.getElementById("plq");
+  if(box&&!box._wired){box._wired=1;box.oninput=e=>{plQuery=e.target.value;render();filters();};}
+
+  if(!rows.length){
+    host.innerHTML=`<p class="mnote">No player matches “${esc(plQuery)}”.</p>`;
+    return;
+  }
   host.innerHTML=SECTIONS.map(sec=>{
     const inSec=rows.filter(p=>secOf(p.position)===sec.key);
     if(!inSec.length)return "";
