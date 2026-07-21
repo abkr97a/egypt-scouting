@@ -180,29 +180,56 @@ function fxBlock(){
     .filter(x=>fxPos==="ALL"||posGroup(x.p.position)===fxPos)
     .filter(x=>!q||x.p.name.toLowerCase().includes(q)||(x.p.club||"").toLowerCase().includes(q));
   const crest=id=>CRESTS[id]?`<img src="${CRESTS[id]}" alt="">`:`<img src="${BLANK}" alt="">`;
-  const team=(id,name,away)=>`<div class="fxteam${away?" away":""}">${away?"":crest(id)}<span>${esc(name||"—")}</span>${away?crest(id):""}</div>`;
+
+  // One row per team, each with its own score. The old layout squeezed both
+  // clubs and a score pill into three columns, so long names were truncated to
+  // "1.FC Phönix Lüb…" and the eye had nowhere to rest.
+  const side=(id,name,score,won)=>`<div class="fxteam${won?" win":""}">${crest(id)}
+      <span>${esc(name||"—")}</span>${score!==null?`<b class="sc1">${score}</b>`:""}</div>`;
+
   const cards=rows.map(({p,m})=>{
     const last=(m.form||[])[0], n=NEXTM[p.tm_id], own=m.ownid;
-    const lastM=last?`<div class="fxm"><span class="fxlab">Last match</span>
-        <div class="fxvs">${team(last.sid||own,last.side||p.club,false)}
-          <span class="fxscore ${last.r}">${esc(last.sc)}</span>
-          ${team(last.oid,last.opp||last.cn,true)}</div>
+    const freeAgent=/free agent|without club/i.test(p.club||"");
+
+    let lastM;
+    if(last){
+      const [a,b]=String(last.sc||"0-0").split("-").map(x=>parseInt(x,10)||0);
+      const verdict=last.r==="W"?"Won":last.r==="D"?"Drew":"Lost";
+      lastM=`<div class="fxm"><span class="fxlab">Last match</span>
+        <span class="fxstate ${last.r}">${verdict} ${esc(last.sc)}</span>
+        <div class="fxvs">
+          ${side(last.sid||own,last.side||p.club,a,a>b)}
+          ${side(last.oid,last.opp||last.cn,b,b>a)}
+        </div>
         <div class="fxmeta"><span>${esc(last.fd)}</span><span>${esc(last.cn||"")}</span>
           <span><b>${last.min}'</b></span>${last.g?`<span><b>${last.g}G</b></span>`:""}${last.a?`<span><b>${last.a}A</b></span>`:""}
-          <span>${last.v==="home"?"home":"away"}</span></div></div>`
-      :`<div class="fxm"><span class="fxlab">Last match</span><div class="fxnone">No recorded match.</div></div>`;
-    const nextM=n?`<div class="fxm"><span class="fxlab">Next match</span>
-        <div class="fxvs">${team(n.sid||own,p.club,false)}
-          <span class="fxscore soon">${esc(n.ha==="A"?"away":n.ha==="H"?"home":"vs")}</span>
-          ${team(n.oid||"",n.opp,true)}</div>
-        <div class="fxmeta"><span><b>${esc(n.date)}</b></span>${n.time?`<span>${esc(n.time)}</span>`:""}</div></div>`
-      :`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">Fixture not published yet.</div></div>`;
-    const freeAgent=/free agent|without club/i.test(p.club||"");
+          <span>${last.v==="home"?"home":"away"}</span></div></div>`;
+    }else{
+      lastM=`<div class="fxm"><span class="fxlab">Last match</span><div class="fxnone">No recorded match.</div></div>`;
+    }
+
+    let nextM;
+    if(freeAgent){
+      nextM=`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">No club — free agent.</div></div>`;
+    }else if(n){
+      const venue=n.ha==="H"?"Home":n.ha==="A"?"Away":"Scheduled";
+      nextM=`<div class="fxm"><span class="fxlab">Next match</span>
+        <span class="fxstate soon">${venue} · ${esc(n.date)}</span>
+        <div class="fxvs">
+          ${side(n.sid||own,p.club,null,false)}
+          ${side(n.oid,n.opp,null,false)}
+        </div>
+        <div class="fxmeta">${n.time?`<span>Kick-off <b>${esc(n.time)}</b></span>`:""}</div></div>`;
+    }else{
+      nextM=`<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">Fixture not published yet.</div></div>`;
+    }
+
     const clubLine=freeAgent?'<b class="fa">Free agent</b>':esc(p.club||"");
     return `<div class="fxc"><div class="fxhd">${freeAgent?'<span class="faico">FA</span>':crest(own)}
         <div class="nm">${esc(p.name)}<small>${esc(p.age)} · ${esc(p.position||"")} · ${clubLine}</small></div></div>
-      ${lastM}${freeAgent?'<div class="fxm"><span class="fxlab">Next match</span><div class="fxnone">No club — free agent.</div></div>':nextM}</div>`;
+      ${lastM}${nextM}</div>`;
   }).join("");
+
   const withNext=rows.filter(x=>NEXTM[x.p.tm_id]).length;
   document.getElementById("fixtures").innerHTML=
     `<div class="fxcount">${rows.length} player${rows.length===1?"":"s"} · ${withNext} with a scheduled fixture</div>
@@ -223,7 +250,7 @@ function fxBlock(){
   const box=document.getElementById("fxq");
   if(box&&!box._wired){box._wired=1;box.oninput=e=>{fxQuery=e.target.value;fxBlock();};}
 }
-/* ---- scouting mode ---- */
+
 let scFilter="ALL";
 let scRegion="ALL";
 function scRegionKeep(p){

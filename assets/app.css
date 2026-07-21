@@ -410,7 +410,8 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
   background:var(--stone-2);color:var(--muted);border-radius:20px;padding:3px 9px;letter-spacing:0}
 :root[data-theme="light"] .scgrp .gc{background:#f0ecea}
 
-/* ---- match cards (rebuilt) ---- */
+
+/* ---- match cards ---- */
 #view-fix .scfilters{margin-top:22px}
 .fxtools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
 .fxsearch{flex:1 1 240px;max-width:340px;position:relative}
@@ -420,37 +421,59 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .fxsearch::before{content:"";position:absolute;left:12px;top:50%;transform:translateY(-50%);
   width:13px;height:13px;border:2px solid var(--muted);border-radius:50%;opacity:.7}
 :root[data-theme="light"] .fxsearch input{background:#fff}
-.fxcount{font-size:11px;color:var(--muted);letter-spacing:.04em}
-.fxwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;margin-top:22px}
-.fxc{background:var(--stone-2);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-:root[data-theme="light"] .fxc{background:#fff;border-color:var(--line-lt)}
-.fxhd{display:flex;align-items:center;gap:10px;padding:13px 15px;border-bottom:1px solid var(--line);
-  background:linear-gradient(135deg,rgba(200,16,46,.06),transparent 70%)}
-.fxhd img{width:26px;height:26px;object-fit:contain;flex:none}
-.fxhd .nm{font-weight:700;color:var(--ink);font-size:13px;line-height:1.25}
-.fxhd .nm small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;margin-top:2px}
-.fxm{padding:13px 15px}
-.fxm + .fxm{border-top:1px solid var(--line)}
-.fxlab{font:800 8.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
-  display:block;margin-bottom:9px}
-.fxvs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
-.fxteam{display:flex;align-items:center;gap:8px;min-width:0}
-.fxteam.away{justify-content:flex-end;text-align:right}
-.fxteam img{width:22px;height:22px;object-fit:contain;flex:none}
-.fxteam span{font-size:12px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.fxscore{font-family:var(--disp);font-size:17px;font-weight:800;padding:4px 10px;border-radius:8px;
-  white-space:nowrap;font-variant-numeric:tabular-nums}
-.fxscore.W{background:rgba(46,157,90,.14);color:#2e9d5a}
-.fxscore.D{background:rgba(122,114,110,.14);color:var(--muted)}
-.fxscore.L{background:rgba(200,16,46,.11);color:var(--red)}
-.fxscore.soon{background:var(--stone);color:var(--muted);font-size:11px;font-weight:700;
-  letter-spacing:.04em;font-family:var(--sans)}
-:root[data-theme="light"] .fxscore.soon{background:#f0ecea}
-.fxmeta{margin-top:9px;font-size:10.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;
-  font-variant-numeric:tabular-nums}
-.fxmeta b{color:var(--ink);font-weight:700}
-.fxnone{font-size:11.5px;color:var(--muted);padding:6px 0}
+.fxcount{font-size:11px;color:var(--muted);letter-spacing:.04em;margin-top:16px}
 
-.faico{width:26px;height:26px;flex:none;border-radius:6px;display:inline-flex;align-items:center;
-  justify-content:center;font:800 9px/1 var(--sans);letter-spacing:.05em;background:var(--line);color:var(--muted)}
+.fxwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:18px;margin-top:18px}
+
+.fxc{background:var(--stone-2);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  transition:border-color .15s,box-shadow .15s}
+.fxc:hover{border-color:var(--red);box-shadow:0 4px 18px rgba(0,0,0,.06)}
+:root[data-theme="light"] .fxc{background:#fff;border-color:var(--line-lt)}
+
+/* header: crest, name, meta */
+.fxhd{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;
+  border-bottom:1px solid var(--line)}
+.fxhd img{width:34px;height:34px;object-fit:contain;flex:none}
+.fxhd .nm{font-weight:800;color:var(--ink);font-size:15px;line-height:1.3;min-width:0}
+.fxhd .nm small{display:block;font-weight:400;color:var(--muted);font-size:11.5px;margin-top:3px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* one match block */
+.fxm{padding:15px 18px 16px}
+.fxm + .fxm{border-top:1px solid var(--line)}
+.fxlab{font:800 9px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  display:block;margin-bottom:12px}
+
+/* the fixture itself — stacked rows, not a cramped 3-column squeeze */
+.fxvs{display:flex;flex-direction:column;gap:8px}
+.fxteam{display:flex;align-items:center;gap:10px;min-width:0}
+.fxteam img{width:24px;height:24px;object-fit:contain;flex:none}
+.fxteam span{font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.35;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.fxteam.away span{color:var(--sand)}
+
+/* score sits to the right of each team row */
+.fxteam .sc1{font-family:var(--disp);font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;
+  flex:none;color:var(--muted);min-width:22px;text-align:right}
+.fxteam.win .sc1{color:var(--ink)}
+.fxteam.win span{font-weight:800}
+
+.fxscore,.fxvs > .fxscore{display:none}          /* the old middle pill is gone */
+
+.fxstate{display:inline-flex;align-items:center;gap:6px;font:800 9.5px/1 var(--sans);
+  letter-spacing:.08em;text-transform:uppercase;padding:5px 9px;border-radius:20px;margin-bottom:11px}
+.fxstate.W{background:rgba(46,157,90,.13);color:#2e9d5a}
+.fxstate.D{background:rgba(122,114,110,.14);color:var(--muted)}
+.fxstate.L{background:rgba(200,16,46,.11);color:var(--red)}
+.fxstate.soon{background:rgba(200,16,46,.08);color:var(--red)}
+
+.fxmeta{margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);
+  font-size:11px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;
+  font-variant-numeric:tabular-nums;line-height:1.5}
+.fxmeta b{color:var(--ink);font-weight:700}
+.fxnone{font-size:12px;color:var(--muted);padding:4px 0}
+
+.faico{width:34px;height:34px;flex:none;border-radius:8px;display:inline-flex;align-items:center;
+  justify-content:center;font:800 10px/1 var(--sans);letter-spacing:.05em;
+  background:var(--line);color:var(--muted)}
 .fxc .nm small .fa{color:var(--muted);font-weight:700}
