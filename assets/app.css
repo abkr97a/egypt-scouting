@@ -167,6 +167,15 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .pp.eg{background:var(--red);color:#fff;border-color:var(--red)}
 /* .origin removed with the card's birthplace line -- .pc-pass already carries the
    12px bottom margin the layout needs, so the spacing is unchanged. */
+
+/* Manual entries. Outlined rather than filled: the card should read as "this one
+   came from you, not the crawl" without competing with the passport chips beside
+   it. The note carries the eligibility claim, so it travels with the player. */
+.manual{display:inline-flex;align-items:center;font:800 9.5px/1 var(--sans);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--gold);
+  border:1px dashed var(--gold);border-radius:5px;padding:5px 7px;background:transparent}
+.mnote-in{font-size:11px;line-height:1.45;color:var(--muted);margin:-6px 0 11px;
+  padding-left:9px;border-left:2px solid var(--gold-dim)}
 .pc-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}
 .pmc{background:var(--stone);border-radius:8px;padding:11px 4px;text-align:center;border:1px solid var(--line)}
 :root[data-theme="light"] .pmc{background:var(--stone-2);border-color:var(--line-lt)}

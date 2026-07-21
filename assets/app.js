@@ -115,7 +115,8 @@ function cardHTML(p){
       </div><div class="pc-age">${esc(p.age)}<small>yrs</small></div></div>
     </div>
     <div class="pc-in">
-      <div class="pc-pass">${pass}</div>
+      <div class="pc-pass">${pass}${p.source==="manual"?`<span class="manual" title="${esc(p.note||"Added by hand, not found by the crawl")}">Added manually</span>`:""}</div>
+      ${p.source==="manual"&&p.note?`<div class="mnote-in">${esc(p.note)}</div>`:""}
       <div class="pc-mini">
         <div class="pmc"><b>${s.a}</b><span>Apps</span></div>
         <div class="pmc g"><b>${s.g}</b><span>Goals</span></div>
