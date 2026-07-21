@@ -165,7 +165,8 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .pp .flag{border-radius:2px;display:block;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.12)}
 :root[data-theme="light"] .pp{background:#fff}
 .pp.eg{background:var(--red);color:#fff;border-color:var(--red)}
-.origin{font-size:11px;color:var(--red);font-weight:800;margin:-4px 0 11px;text-transform:uppercase;letter-spacing:.03em}
+/* .origin removed with the card's birthplace line -- .pc-pass already carries the
+   12px bottom margin the layout needs, so the spacing is unchanged. */
 .pc-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}
 .pmc{background:var(--stone);border-radius:8px;padding:11px 4px;text-align:center;border:1px solid var(--line)}
 :root[data-theme="light"] .pmc{background:var(--stone-2);border-color:var(--line-lt)}

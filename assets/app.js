@@ -102,7 +102,10 @@ function cardHTML(p){
   const photo=p.photo?`<img class="pc-photo" src="${p.photo}" alt="" loading="lazy">`:`<div class="pc-photo ph">${esc(initials(p.name))}</div>`;
   const pass=passChips(p.citizenship);
   const s=p.st||{a:"—",g:"—",as:"—"};
-  const origin=dia(p)&&p.birthplace&&p.birthplace!=="-"&&p.birthplace!==""?`<div class="origin">◆ born ${esc(p.birthplace)}</div>`:"";
+  // Birthplace line removed from the card. It shouted -- red, bold, uppercase --
+  // for a fact that is not decision-relevant at a glance, and forcing uppercase
+  // mangled the place names it displayed (RÜSSELSHEIM, FRANKFURT AM MAIN). The
+  // full birthplace is still on the player modal, so nothing is lost.
   return `<article class="pcard${dia(p)?" dia":""}" data-id="${esc(p.tm_id)}" role="button" tabindex="0" aria-label="Open ${esc(p.name)}">
     <div class="pc-band">
       <div class="pc-num">${pm.abbr}</div>
@@ -112,7 +115,7 @@ function cardHTML(p){
       </div><div class="pc-age">${esc(p.age)}<small>yrs</small></div></div>
     </div>
     <div class="pc-in">
-      <div class="pc-pass">${pass}</div>${origin}
+      <div class="pc-pass">${pass}</div>
       <div class="pc-mini">
         <div class="pmc"><b>${s.a}</b><span>Apps</span></div>
         <div class="pmc g"><b>${s.g}</b><span>Goals</span></div>
