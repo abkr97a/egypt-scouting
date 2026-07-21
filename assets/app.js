@@ -322,9 +322,15 @@ function scRegionKeep(p){
   const saved=filter; filter=scRegion;      // reuse the shortlist's own region logic
   const r=keep(p); filter=saved; return r;
 }
-function scRows(){
+// Every player the Scouting tab can show, before the region/form chips narrow it.
+// The tab badge counts this, so the badge and the table are the same population by
+// construction -- they previously used separate expressions and drifted apart.
+function scRowsAll(){
   return DATA.map(p=>({p,m:MSTATS[p.tm_id]}))
-    .filter(x=>x.m&&x.m.status&&x.m.status.n)
+    .filter(x=>x.m&&x.m.status&&x.m.status.n);
+}
+function scRows(){
+  return scRowsAll()
     .filter(x=>scRegionKeep(x.p))
     .filter(x=>{
       const s=x.m.status;
@@ -417,9 +423,12 @@ function setView(v){
   try{history.replaceState(null,"",hash);}catch(e){}
 }
 function initTabs(){
-  const withStats=DATA.filter(p=>MSTATS[p.tm_id]&&MSTATS[p.tm_id].status&&MSTATS[p.tm_id].status.n).length;
+  // Count what each tab actually renders. This counted every player with match
+  // data regardless of eligibility, so the badge included cap-tied players the
+  // Scouting table drops -- it read 73 while the table listed 77. Deriving both
+  // from scRows() means the badge cannot disagree with its own tab again.
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set("vc-list",DATA.length); set("vc-scout",withStats);
+  set("vc-list",DATA.length); set("vc-scout",scRowsAll().length);
   set("vc-fix",DATA.filter(p=>NEXTM[p.tm_id]).length);
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
   const from={"#scouting":"scout","#fixtures":"fix"}[location.hash]||"list";
