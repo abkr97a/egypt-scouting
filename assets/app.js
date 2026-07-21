@@ -8,7 +8,7 @@ async function boot(){
   const load=n=>fetch(`data/${n}.json`).then(r=>r.json());
   [DATA,MSTATS,CRESTS,NEXTM,FLAGS,NAT3,LGTIER,MANIFEST]=await Promise.all(
     ["data","mstats","crests","nextm","flags","nat3","lgtier","manifest"].map(load));
-  filters();render();aChips();drawAnalytics();drawScouting();initTabs();
+  filters();render();aChips();drawAnalytics();drawScouting();initTabs();syncCounts();
 }
 boot();
 const SHALLOW=["Portugal","Greece","Sweden","Austria","Denmark","Netherlands"];
@@ -287,6 +287,33 @@ function drawScouting(){
   document.querySelectorAll("#scfilters .chip").forEach(b=>b.onclick=()=>{scFilter=b.dataset.sc;drawScouting();});
   fxBlock();
 }
+/* ---- keep every displayed number derived from DATA ---- */
+function syncCounts(){
+  const total=DATA.length;
+  const dia_=DATA.filter(p=>p.egypt_position==="secondary").length;
+
+  document.querySelectorAll(".bstat").forEach(el=>{
+    const lab=(el.querySelector("span")||{}).textContent||"";
+    const num=el.querySelector("b"); if(!num)return;
+    if(/eligible/i.test(lab))num.textContent=total;
+    else if(/raised abroad/i.test(lab))num.textContent=dia_;
+  });
+
+  document.querySelectorAll("h2").forEach(h=>{
+    if(/who can wear the red/i.test(h.textContent))
+      h.textContent=total+" who can wear the red.";
+  });
+
+  // Body copy carries the count in prose; rewrite just the number so the
+  // sentence survives any later edit to its wording.
+  document.querySelectorAll("p,small").forEach(el=>{
+    if(/These are \d+ more/.test(el.innerHTML))
+      el.innerHTML=el.innerHTML.replace(/These are \d+ more/,"These are "+total+" more");
+    if(/This is \d+ caught by method/.test(el.innerHTML))
+      el.innerHTML=el.innerHTML.replace(/This is \d+ caught by method/,"This is "+total+" caught by method");
+  });
+}
+
 /* ---- view tabs ---- */
 function setView(v){
   const map={list:"view-list",scout:"scouting",fix:"view-fix"};
