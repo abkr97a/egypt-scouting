@@ -111,7 +111,11 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .chip{font:800 12.5px/1 var(--sans);letter-spacing:.04em;padding:10px 15px;border-radius:4px;cursor:pointer;border:1px solid var(--line-lt);background:transparent;color:var(--muted);transition:.14s;display:inline-flex;align-items:center;gap:7px}
 .chip:hover{border-color:var(--gold);color:var(--papyrus)}
 :root[data-theme="light"] .chip:hover{color:var(--ink)}
-.chip[aria-pressed="true"]{background:var(--gold);color:var(--stone);border-color:var(--gold)}
+/* The shortlist marks selection with aria-pressed; the scouting and fixtures
+   chips use a .on class. Both need the same treatment, or a selected chip in
+   those sections looks unselected. */
+.chip[aria-pressed="true"],.chip.on{background:var(--gold);color:var(--stone);border-color:var(--gold)}
+.chip.on b{background:var(--stone);color:var(--gold)}
 .chip:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 .chip .cnt{min-width:20px;text-align:center;padding:1px 6px;border-radius:99px;font:800 11px/1.5 var(--mono);background:rgba(138,127,102,.25)}
 .chip[aria-pressed="true"] .cnt{background:var(--stone);color:var(--gold)}
