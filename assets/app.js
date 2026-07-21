@@ -263,7 +263,13 @@ function fxBlock(){
         <div class="fxwhen"><span class="res ${last.r}">${verdict} ${esc(last.sc)}</span>
           ${esc(last.fd)} · ${last.v==="home"?"home":"away"}</div>
         <div class="fxvs">${side(last.sid||own,last.side||p.club,a,a>b)}${side(last.oid,last.opp||last.cn,b,b>a)}</div>
-        <div class="fxmeta"><span>${esc(last.cn||"")}</span><span><b>${last.min}'</b></span>${last.g?`<span><b>${last.g}G</b></span>`:""}${last.a?`<span><b>${last.a}A</b></span>`:""}</div></div>`;
+        <div class="fxmeta"><span>${esc(last.cn||"")}</span>${
+          // His involvement, not just the club's result. A card that showed only
+          // the scoreline implied he took part; for 42 of these he had not.
+          last.part==="P" ? `<span><b>${last.min}'</b></span>`
+          : last.part==="B" ? `<span class="pw b">unused sub</span>`
+          : `<span class="pw o">not in squad</span>`
+        }${last.part==="P"&&last.g?`<span><b>${last.g}G</b></span>`:""}${last.part==="P"&&last.a?`<span><b>${last.a}A</b></span>`:""}</div></div>`;
     }
 
     const clubLine=freeAgent?'<b class="fa">Free agent</b>':esc(p.club||"");
