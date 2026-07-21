@@ -480,6 +480,7 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
   <b>club</b> matchdays &mdash; started, benched, or left out entirely. A run of grey says more about a
   prospect&rsquo;s standing than any career total. National-team call-ups are excluded so they don&rsquo;t
   read as club selections.</p>
+  <div class="scfilters" id="scregion"></div>
   <div class="scfilters" id="scfilters"></div>
   <div class="mwrap"><table class="mtbl sctbl" id="sctable"></table></div>
 </section>
@@ -695,9 +696,16 @@ function trajBlock(p){
 
 /* ---- scouting mode ---- */
 let scFilter="ALL";
+let scRegion="ALL";
+function scRegionKeep(p){
+  if(scRegion==="ALL")return true;
+  const saved=filter; filter=scRegion;      // reuse the shortlist's own region logic
+  const r=keep(p); filter=saved; return r;
+}
 function scRows(){
   return DATA.map(p=>({p,m:MSTATS[p.tm_id]}))
     .filter(x=>x.m&&x.m.status&&x.m.status.n)
+    .filter(x=>scRegionKeep(x.p))
     .filter(x=>{
       const s=x.m.status;
       if(scFilter==="HOT")return s.played>=7;
@@ -728,6 +736,11 @@ function drawScouting(){
   }).join("");
   document.getElementById("sctable").innerHTML=
     `<thead><tr><th>Player</th><th>Last 10 club games</th><th>Squad status</th><th class="r">G/A</th><th class="c">Signal</th><th class="r">Last game</th></tr></thead><tbody>${body}</tbody>`;
+  const rg=[["ALL","All regions"],["DIA","Raised abroad"],["EU","European"],["GULF","Gulf"],["USA","USA"]];
+  document.getElementById("scregion").innerHTML=rg.map(([k,l])=>{
+    const n=(()=>{const o=scRegion;scRegion=k;const c=scRows().length;scRegion=o;return c;})();
+    return `<button class="chip${scRegion===k?" on":""}" data-scr="${k}">${l} <b>${n}</b></button>`;}).join("");
+  document.querySelectorAll("#scregion .chip").forEach(b=>b.onclick=()=>{scRegion=b.dataset.scr;drawScouting();});
   const f=[["ALL","All"],["HOT","Regulars"],["SCORING","Scoring"],["COLD","Out of favour"]];
   document.getElementById("scfilters").innerHTML=f.map(([k,l])=>{
     const n=(()=>{const o=scFilter;scFilter=k;const c=scRows().length;scFilter=o;return c;})();
