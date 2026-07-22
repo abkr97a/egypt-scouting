@@ -192,6 +192,10 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
   padding:4px 7px;border-radius:5px;white-space:nowrap}
 .pw.b{color:#d9a441;background:rgba(217,164,65,.13)}
 .pw.o{color:var(--muted);background:rgba(128,128,128,.13)}
+/* TM has the fixture but not the minutes yet -- usually a match from the last
+   day or two. Neutral, not amber: this is a gap in the source, not a judgement
+   about the player. */
+.pw.p{color:var(--muted);background:transparent;border:1px dashed var(--line)}
 
 .manual{display:inline-flex;align-items:center;font:800 9.5px/1 var(--sans);
   letter-spacing:.08em;text-transform:uppercase;color:var(--gold);

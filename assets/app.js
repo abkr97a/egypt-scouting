@@ -304,7 +304,13 @@ function fxBlock(){
         <div class="fxmeta"><span>${esc(last.cn||"")}</span>${
           // His involvement, not just the club's result. A card that showed only
           // the scoreline implied he took part; for 42 of these he had not.
-          last.part==="P" ? `<span><b>${last.min}'</b></span>`
+          //
+          // "played" with no minutes is TM still filling the match in -- it
+          // publishes the fixture within hours and the minutes a day or two
+          // later. Rendering it as 0' read as "he was on the pitch for zero
+          // minutes", which is a contradiction rather than a fact.
+          last.part==="P" ? (last.min ? `<span><b>${last.min}'</b></span>`
+                                      : `<span class="pw p">minutes pending</span>`)
           : last.part==="B" ? `<span class="pw b">unused sub</span>`
           : `<span class="pw o">not in squad</span>`
         }${last.part==="P"&&last.g?`<span><b>${last.g}G</b></span>`:""}${last.part==="P"&&last.a?`<span><b>${last.a}A</b></span>`:""}</div></div>`;
@@ -400,7 +406,11 @@ function drawScouting(){
     +`<th class="r">G/A</th><th class="c">Signal</th><th class="r">Last game</th></tr></thead>`;
   const rowHTML=({p,m})=>{
     const s=m.status;
-    const strip=m.squad.slice(0,10).map(x=>`<i class="${x.s}" title="${esc(x.d)} ${esc(x.cn||"")}${x.opp?" vs "+esc(x.opp):""} \u2014 ${x.s==="P"?x.min+"' played":x.s==="B"?"unused sub":"not in squad"}"></i>`).join("");
+    // Same "played but no minutes yet" case the fixture card handles: TM posts
+    // the fixture before the minutes, so "0' played" would be a contradiction.
+    const mins=x=>x.s==="P"?(x.min?x.min+"' played":"played \u2014 minutes not published yet")
+                 :x.s==="B"?"unused sub":"not in squad";
+    const strip=m.squad.slice(0,10).map(x=>`<i class="${x.s}" title="${esc(x.d)} ${esc(x.cn||"")}${x.opp?" vs "+esc(x.opp):""} \u2014 ${mins(x)}"></i>`).join("");
     const ga=(s.g||s.a)?`${s.g?s.g+"G":""}${s.g&&s.a?" ":""}${s.a?s.a+"A":""}`:"\u2014";
     return `<tr>
       <td class="pl">${esc(p.name)}<small>${esc(p.age)} \u00b7 ${esc(p.position||"")} \u00b7 ${esc(p.club||"")}</small></td>
