@@ -110,6 +110,9 @@ function keep(p){
   // MLS/USL sit closer to the European game than to the Gulf.
   if(filter==="EU")return regionOf(p)==="eu";
   if(filter==="GULF")return regionOf(p)==="gulf";
+  // Club status, not a region — a free agent has no country to be filed under,
+  // which is why he sits alongside the regions rather than inside one.
+  if(filter==="FREE")return /free agent|without club/i.test(p.club||"");
   return true;
 }
 function filters(){
@@ -120,7 +123,10 @@ function filters(){
   // which is where their football sits.
   // "Europe & Americas" rather than "European": the bucket holds two US-based
   // players, and a label that excluded them would be wrong about its own count.
-  const f=[["ALL","All"],["EU","Europe & Americas"],["GULF","Gulf"]];
+  // Free agents earn a chip of their own: available now, no fee, and the only
+  // group a federation can approach without negotiating with a club. Six of the
+  // 81 — findable before only by reading every card.
+  const f=[["ALL","All"],["EU","Europe & Americas"],["GULF","Gulf"],["FREE","Free agents"]];
   document.getElementById("filters").innerHTML=f.map(x=>`<button class="chip" data-f="${x[0]}" aria-pressed="${x[0]===filter}">${x[1]} <span class="cnt">${n(x[0])}</span></button>`).join("");
   document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{filter=b.dataset.f;filters();render();});
 }
@@ -151,7 +157,14 @@ function cardHTML(p){
         <div class="pmc g"><b>${s.g}</b><span>Goals</span></div>
         <div class="pmc"><b>${s.as}</b><span>Assists</span></div>
       </div>
-      <div class="pc-foot"><div class="clubcol"><span class="club">${CRESTS[p.club_id]?`<img class="ccrest" src="${CRESTS[p.club_id]}" alt="">`:""}${esc(p.club)}</span><span class="clubmeta">${FLAGS[p.country_crawled]?`<img class="cflag" src="${FLAGS[p.country_crawled]}" alt="">`:""}${esc(p.league||"")}${LGTIER[p.league]?` · <b>T${LGTIER[p.league]}</b>`:""}</span></div><span class="val">${val(p.market_value_eur)}</span></div>
+      <div class="pc-foot"><div class="clubcol"><span class="club">${
+        // "Free agent" rendered as plain club text read like the name of a club.
+        // It is the opposite — no club, no fee, available now — so it gets the
+        // same amber treatment the fixtures tab already gives it.
+        /free agent|without club/i.test(p.club||"")
+          ? '<b class="fa">Free agent</b>'
+          : `${CRESTS[p.club_id]?`<img class="ccrest" src="${CRESTS[p.club_id]}" alt="">`:""}${esc(p.club)}`
+      }</span><span class="clubmeta">${FLAGS[p.country_crawled]?`<img class="cflag" src="${FLAGS[p.country_crawled]}" alt="">`:""}${esc(p.league||"")}${LGTIER[p.league]?` · <b>T${LGTIER[p.league]}</b>`:""}</span></div><span class="val">${val(p.market_value_eur)}</span></div>
     </div>
   </article>`;
 }

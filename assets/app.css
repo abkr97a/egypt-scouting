@@ -654,6 +654,11 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
   justify-content:center;font:800 10px/1 var(--sans);letter-spacing:.05em;
   background:var(--line);color:var(--muted)}
 .fxc .nm small .fa{color:var(--muted);font-weight:700}
+/* Free agent on a shortlist card. Amber, matching the fixtures tab: no club, no
+   fee, available now — the one status a federation can act on without
+   negotiating, and it read as a club name before. */
+.club .fa{color:#b8860b;font-weight:800}
+:root[data-theme="dark"] .club .fa{color:#d9a441}
 
 /* ---- fixtures sub-tabs + sort ---- */
 .fxsubs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:20px;
