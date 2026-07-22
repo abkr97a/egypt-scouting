@@ -212,6 +212,9 @@ function formBlock(p){
 // these so they do not read as club selections, but they are the most direct
 // evidence of which federation is developing a player -- so the sheet shows them
 // in full, grouped by the side he played for.
+// MON already exists further down as name->index for parsing; this is the
+// reverse, index->name, for display.
+const MONTHS=[,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function natlBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.natl||!m.natl.length)return "";
   const by=new Map();
@@ -225,11 +228,15 @@ function natlBlock(p){
     const senior=team&&!/U-?\d\d/.test(team);
     const rows=gs.map(x=>{
       const ga=(x.g||x.a)?`${x.g?x.g+"G":""}${x.g&&x.a?" ":""}${x.a?x.a+"A":""}`:"—";
+      // Full date. These records span several years -- Aboueita has caps from
+      // 2024 to 2026 -- so "02-28" alone is ambiguous in a way club form is not.
+      const d=(x.d||"").split("-");
       return `<tr>
-        <td class="dt">${esc((x.d||"").slice(5))}</td>
+        <td class="dt">${esc(d[2]||"")} ${esc(MONTHS[+d[1]]||"")} <span class="yr">${esc(d[0]||"")}</span></td>
         <td class="opp">${x.opp?`<span class="vs">vs</span>${esc(x.opp)}`:"—"}
           <small title="${esc(x.cn||"")}">${esc(x.cn||"")}</small></td>
-        <td class="mn">${x.part==="P"?(x.min?x.min+"'":"played"):x.part==="B"?"<i>unused</i>":"<i>not in squad</i>"}</td>
+        <td class="mn">${x.part==="P"?(x.min?`<b>${x.min}'</b>`:`<span class="pw p">minutes pending</span>`)
+          :x.part==="B"?`<span class="pw b">unused sub</span>`:`<span class="pw o">not in squad</span>`}</td>
         <td class="r ga${(x.g||x.a)?"":" z"}">${esc(ga)}</td></tr>`;
     }).join("");
     return `<div class="natgrp">

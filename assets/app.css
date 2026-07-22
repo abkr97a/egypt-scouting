@@ -504,9 +504,25 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .natrow:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
 .natx{display:inline-block;margin-left:8px;font:700 10.5px/1 var(--mono,var(--sans));
   color:var(--muted);white-space:nowrap}
-.natdet>td{padding:4px 0 18px 0!important;background:rgba(128,128,128,.04)}
-.natdet .ct{margin-top:0}
-.natdet .natgrp:last-of-type{margin-bottom:8px}
+/* The block inherits .mtbl at width:100%, which is right inside a narrow modal
+   and wrong here: stretched across the full table the columns drift apart and
+   G/A ends up against the far edge, disconnected from the row it belongs to.
+   Cap it and indent it so it reads as detail belonging to the row above. */
+.natdet>td{padding:2px 0 16px 0!important;background:rgba(128,128,128,.045);
+  border-bottom:2px solid var(--line)}
+.natdet .ct{margin:14px 0 10px 0}
+.natdet .natgrp{max-width:660px;margin-left:44px}   /* aligns under the player name */
+.natdet .natgrp:last-of-type{margin-bottom:6px}
+.natdet .mnote{margin-left:44px;max-width:660px}
+.natdet .mtbl td{padding:7px 10px 7px 0}
+.natdet .mtbl .opp{width:100%}                      /* takes the slack, not G/A */
+.natdet .mtbl .dt{white-space:nowrap;color:var(--muted)}
+.natdet .mtbl .mn{white-space:nowrap;text-align:right;padding-right:22px}
+.natdet .mtbl .dt .yr{color:var(--line);font-weight:400}   /* year present, quiet */
+:root[data-theme="light"] .natdet .mtbl .dt .yr{color:#c9c0b6}
+@media (max-width:760px){
+  .natdet .natgrp,.natdet .mnote{margin-left:0}
+}
 
 /* National-team block, grouped by side. */
 .natgrp{margin-bottom:16px}
