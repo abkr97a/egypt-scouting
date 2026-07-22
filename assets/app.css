@@ -496,6 +496,13 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .npill.chk{background:rgba(217,164,65,.16);color:#b8860b}
 :root[data-theme="dark"] .npill.chk{color:#d9a441}
 .nattbl td{padding:11px 10px 11px 0}
+
+/* National-team block on the player sheet, grouped by side. */
+.natgrp{margin-bottom:16px}
+.natgh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 6px}
+.natgh b{font:800 13.5px/1.2 var(--sans);color:var(--ink)}
+.natgh b.sr{color:var(--red)}          /* senior side — the one that cap-ties */
+.natgh span{font-size:11.5px;color:var(--muted)}
 .scfilters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .sclegend{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .sclegend span{display:inline-flex;align-items:center;gap:6px}

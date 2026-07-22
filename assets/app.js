@@ -208,6 +208,47 @@ function formBlock(p){
       <thead><tr><th>Date</th><th>Opponent · competition</th><th class="c">H/A</th><th>Result</th><th>Mins</th><th class="r">G/A</th></tr></thead>
       <tbody>${rows}</tbody></table></div>${note}`;
 }
+// Every international appearance, newest first. Club form deliberately excludes
+// these so they do not read as club selections, but they are the most direct
+// evidence of which federation is developing a player -- so the sheet shows them
+// in full, grouped by the side he played for.
+function natlBlock(p){
+  const m=MSTATS[p.tm_id]; if(!m||!m.natl||!m.natl.length)return "";
+  const by=new Map();
+  m.natl.forEach(x=>{ if(!by.has(x.team||"—"))by.set(x.team||"—",[]); by.get(x.team||"—").push(x); });
+
+  // Most-capped side first, so his principal team leads.
+  const teams=[...by.entries()].sort((a,b)=>b[1].length-a[1].length);
+  const blocks=teams.map(([team,gs])=>{
+    const played=gs.filter(x=>x.part==="P").length;
+    const goals=gs.reduce((s,x)=>s+(x.g||0),0), asts=gs.reduce((s,x)=>s+(x.a||0),0);
+    const senior=team&&!/U-?\d\d/.test(team);
+    const rows=gs.map(x=>{
+      const ga=(x.g||x.a)?`${x.g?x.g+"G":""}${x.g&&x.a?" ":""}${x.a?x.a+"A":""}`:"—";
+      return `<tr>
+        <td class="dt">${esc((x.d||"").slice(5))}</td>
+        <td class="opp">${x.opp?`<span class="vs">vs</span>${esc(x.opp)}`:"—"}
+          <small title="${esc(x.cn||"")}">${esc(x.cn||"")}</small></td>
+        <td class="mn">${x.part==="P"?(x.min?x.min+"'":"played"):x.part==="B"?"<i>unused</i>":"<i>not in squad</i>"}</td>
+        <td class="r ga${(x.g||x.a)?"":" z"}">${esc(ga)}</td></tr>`;
+    }).join("");
+    return `<div class="natgrp">
+      <div class="natgh"><b class="${senior?"sr":""}">${esc(team)}</b>
+        <span>${gs.length} call-up${gs.length===1?"":"s"} · ${played} played${goals?` · ${goals}G`:""}${asts?` · ${asts}A`:""}</span></div>
+      <div class="mwrap"><table class="mtbl">
+        <thead><tr><th>Date</th><th>Opponent · competition</th><th>Mins</th><th class="r">G/A</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>`;
+  }).join("");
+
+  // A senior cap is the one thing that ends eligibility, so say so here rather
+  // than leaving the reader to infer it from a team name.
+  const anySenior=teams.some(([t])=>t&&!/U-?\d\d/.test(t));
+  const note=anySenior
+    ? `<div class="mnote">A <b>senior</b> appearance cap-ties a player permanently under FIFA Article&nbsp;9.</div>`
+    : `<div class="mnote">All youth level — under FIFA Article&nbsp;9 these do <b>not</b> cap-tie. He can still choose Egypt.</div>`;
+  return `<div class="ct">${ICON.star||ICON.chart} National team · ${m.natl.length} appearance${m.natl.length===1?"":"s"}</div>
+    ${blocks}${note}`;
+}
 function trajBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.traj||m.traj.length<2)return "";
   const mx=Math.max(...m.traj.map(s=>s.m))||1;
@@ -706,6 +747,7 @@ function openModal(id){
         </div>
         ${statCards(p)}
         ${formBlock(p)}
+        ${natlBlock(p)}
         ${trajBlock(p)}
         ${transferBlock(p)}
         ${sparkline(p)}
