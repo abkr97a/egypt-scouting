@@ -443,6 +443,25 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .sctbl td{padding:11px 10px 11px 0}
 .sctbl tbody tr:nth-child(even){background:rgba(128,128,128,.035)}
 .sctbl tbody tr:hover{background:rgba(200,16,46,.045)}
+
+/* Each position group is its own <table>, so by default every one sizes its
+   columns to its own content and the four sections do not line up -- the
+   goalkeepers' club names are shorter than the midfielders', so the strip
+   column starts in a different place in each. Fixed layout with explicit widths
+   makes all four share one grid. */
+.sctbl{table-layout:fixed;width:100%}
+.sctbl col.c-player{width:26%}
+.sctbl col.c-strip {width:20%}
+.sctbl col.c-tally {width:19%}
+.sctbl col.c-ga    {width:7%}
+.sctbl col.c-signal{width:16%}
+.sctbl col.c-date  {width:12%}
+/* Long club names would otherwise force the fixed column to overflow. */
+.sctbl .pl small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:900px){
+  .sctbl{table-layout:auto}
+  .sctbl col{width:auto}
+}
 .strip i.P{background:#2e9d5a}
 .strip i.B{background:#d9a441}
 .strip i.O{background:var(--line)}

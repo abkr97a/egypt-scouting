@@ -412,6 +412,11 @@ function drawScouting(){
   const rows=scRows();
   const GRP=[["Goalkeeper","Goalkeepers"],["Defender","Defenders"],
              ["Midfielder","Midfielders"],["Attacker","Attackers"],["Other","Other"]];
+  // colgroup pins one shared grid across all four position tables. Without it
+  // each table sizes to its own content and the columns step out of line
+  // between sections.
+  const cols=`<colgroup><col class="c-player"><col class="c-strip"><col class="c-tally">`
+    +`<col class="c-ga"><col class="c-signal"><col class="c-date"></colgroup>`;
   const head=`<thead><tr><th>Player</th><th>Last 10 club games</th><th>Squad status</th>`
     +`<th class="r">G/A</th><th class="c">Signal</th><th class="r">Last game</th></tr></thead>`;
   const rowHTML=({p,m})=>{
@@ -420,7 +425,19 @@ function drawScouting(){
     // the fixture before the minutes, so "0' played" would be a contradiction.
     const mins=x=>x.s==="P"?(x.min?x.min+"' played":"played \u2014 minutes not published yet")
                  :x.s==="B"?"unused sub":"not in squad";
-    const strip=m.squad.slice(0,10).map(x=>`<i class="${x.s}" title="${esc(x.d)} ${esc(x.cn||"")}${x.opp?" vs "+esc(x.opp):""} \u2014 ${mins(x)}"></i>`).join("");
+    // Goals and assists were already carried on every entry and never shown. A
+    // green block that was a goal is not the same as a green block that was a
+    // quiet 90 minutes, and that is exactly what a scout is scanning for.
+    const ret=x=>{
+      const bits=[];
+      if(x.g)bits.push(x.g+(x.g>1?" goals":" goal"));
+      if(x.a)bits.push(x.a+(x.a>1?" assists":" assist"));
+      return bits.length?" \u00b7 "+bits.join(", "):"";
+    };
+    // Oldest left, newest right: the strip is a timeline, and a timeline that
+    // runs backwards makes an improving run look like a decline.
+    const strip=m.squad.slice(0,10).slice().reverse()
+      .map(x=>`<i class="${x.s}" title="${esc(x.d)} ${esc(x.cn||"")}${x.opp?" vs "+esc(x.opp):""} \u2014 ${mins(x)}${esc(ret(x))}"></i>`).join("");
     const ga=(s.g||s.a)?`${s.g?s.g+"G":""}${s.g&&s.a?" ":""}${s.a?s.a+"A":""}`:"\u2014";
     // Face and crest, as on every other tab. A bare name column made this read
     // as a spreadsheet next to the shortlist and fixtures, and a scout scanning
@@ -443,7 +460,7 @@ function drawScouting(){
     const g=rows.filter(x=>posGroup(x.p.position)===key);
     if(!g.length)return "";
     return `<div class="scgrp"><div class="ct">${label} <span class="gc">${g.length}</span></div>
-      <div class="mwrap"><table class="mtbl sctbl">${head}<tbody>${g.map(rowHTML).join("")}</tbody></table></div></div>`;
+      <div class="mwrap"><table class="mtbl sctbl">${cols}${head}<tbody>${g.map(rowHTML).join("")}</tbody></table></div></div>`;
   }).join("")||`<p class="mnote">No players match these filters.</p>`;
 
   const rg=[["ALL","All regions"],["EU","Europe & Americas"],["GULF","Gulf"]];
@@ -456,7 +473,7 @@ function drawScouting(){
   // than either chip row did. The strip legend stays -- it explains the colours,
   // which nothing else on the page does.
   const legend=document.getElementById("sclegend");
-  if(legend)legend.innerHTML=`<span><i style="background:#2e9d5a"></i>played</span><span><i style="background:#d9a441"></i>benched</span><span><i class="O" style="background:var(--line)"></i>not in squad</span><span>newest first \u00b7 hover a block for the match</span>`;
+  if(legend)legend.innerHTML=`<span><i style="background:#2e9d5a"></i>played</span><span><i style="background:#d9a441"></i>benched</span><span><i class="O" style="background:var(--line)"></i>not in squad</span><span>oldest \u2192 newest \u00b7 hover a block for the match, goals and assists</span>`;
 
   // Wire once and never re-render the input: rebuilding it on every keystroke
   // would drop focus and the caret mid-word.
