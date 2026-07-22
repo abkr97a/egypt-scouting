@@ -614,7 +614,7 @@ function statusPill(p){
   return `<span class="npill ${k}">${esc(label)}</span>`;
 }
 function natRows(){
-  return DATA.filter(p=>hits(p,natQuery))
+  return DATA.filter(recruitable).filter(p=>hits(p,natQuery))
     .filter(p=>natFilter==="ALL"||natGroup(p)===natFilter)
     .sort((a,b)=>natLevel(a)-natLevel(b)
       ||(a.national_team||"").localeCompare(b.national_team||"")
@@ -734,11 +734,10 @@ function initTabs(){
   // Counts the same population the tab renders — fxBlock builds from scRows(),
   // which now drops cap-tied players.
   set("vc-fix",DATA.filter(p=>recruitable(p)&&NEXTM[p.tm_id]).length);
-  // The one tab that deliberately keeps cap-tied players. Its whole subject is
-  // who is developing whom, and "Egypt cannot get this one, here is why" is an
-  // answer a scout needs — otherwise the name simply vanishes and someone
-  // researches him again next month.
-  set("vc-nat",DATA.length);
+  // Cap-tied players are out of every view now, this one included: the dossier
+  // lists who Egypt can get, and a player who legally cannot switch is not part
+  // of that answer anywhere.
+  set("vc-nat",DATA.filter(recruitable).length);
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
   const from={"#scouting":"scout","#fixtures":"fix","#national":"nat"}[location.hash]||"list";
   setView(from);
