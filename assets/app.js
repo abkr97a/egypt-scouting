@@ -12,7 +12,9 @@ async function boot(){
 }
 boot();
 const SHALLOW=["Portugal","Greece","Sweden","Austria","Denmark","Netherlands"];
-const SEL={ELIGIBLE_UNCALLED:{t:"Uncapped",sw:"var(--up)"},ELIGIBLE_YOUTH_ELSEWHERE:{t:"Youth caps elsewhere",sw:"var(--gold)"},IN_EGYPT_PIPELINE:{t:"Egypt youth setup",sw:"var(--red)"}};
+// Every status needs a label. The two exclusion cases were missing, so the modal
+// fell back to rendering the raw enum -- CAP_TIED_ELSEWHERE in capitals.
+const SEL={ELIGIBLE_UNCALLED:{t:"Uncapped",sw:"var(--up)"},ELIGIBLE_YOUTH_ELSEWHERE:{t:"Youth caps elsewhere",sw:"var(--gold)"},IN_EGYPT_PIPELINE:{t:"Egypt youth setup",sw:"var(--red)"},CAP_TIED_ELSEWHERE:{t:"Cap-tied elsewhere",sw:"var(--muted)"},NEEDS_REVIEW:{t:"Needs confirming",sw:"var(--gold)"}};
 let filter="ALL";
 
 const ICON={
@@ -94,6 +96,11 @@ function hits(p,q){
 }
 function matchQuery(p){ return hits(p,plQuery); }
 function keep(p){
+  // A senior competitive cap for another country ends eligibility outright, so
+  // these players are not part of the dossier's answer to "who can Egypt get".
+  // Dropped everywhere except the national teams tab, which exists precisely to
+  // show who is unavailable and why.
+  if(!recruitable(p))return false;
   // Search lives inside keep() deliberately: the region chips count with
   // keep(), so a query and the chip counts stay consistent. Filtering the grid
   // separately would leave "Gulf 24" beside 3 visible cards.
@@ -458,8 +465,13 @@ function scRegionKeep(p){
 // Every player the Scouting tab can show, before region and search narrow it.
 // The tab badge counts this, so the badge and the table are the same population by
 // construction -- they previously used separate expressions and drifted apart.
+// A player with a senior competitive cap for another country cannot switch, so
+// tracking his club form is wasted attention -- Scouting mode and Fixtures are
+// working lists, not the archive. They stay in the shortlist and on the national
+// teams tab, where "who Egypt cannot get" is the point.
+function recruitable(p){ return p.status!=="CAP_TIED_ELSEWHERE"; }
 function scRowsAll(){
-  return DATA.map(p=>({p,m:MSTATS[p.tm_id]}))
+  return DATA.filter(recruitable).map(p=>({p,m:MSTATS[p.tm_id]}))
     .filter(x=>x.m&&x.m.status&&x.m.status.n);
 }
 let scQuery="";
@@ -673,8 +685,11 @@ function drawNat(){
 }
 /* ---- keep every displayed number derived from DATA ---- */
 function syncCounts(){
-  const total=DATA.length;
-  const dia_=DATA.filter(p=>p.egypt_position==="secondary").length;
+  // Headline figures describe the recruitable pool, not the raw crawl. Counting
+  // players Egypt cannot sign would overstate the dossier's own claim.
+  const pool=DATA.filter(recruitable);
+  const total=pool.length;
+  const dia_=pool.filter(p=>p.egypt_position==="secondary").length;
 
   document.querySelectorAll(".bstat").forEach(el=>{
     const lab=(el.querySelector("span")||{}).textContent||"";
@@ -715,10 +730,14 @@ function initTabs(){
   // Scouting table drops -- it read 73 while the table listed 77. Deriving both
   // from scRows() means the badge cannot disagree with its own tab again.
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  set("vc-list",DATA.length); set("vc-scout",scRowsAll().length);
-  set("vc-fix",DATA.filter(p=>NEXTM[p.tm_id]).length);
-  // Everyone in the dossier appears here — the "never called up" group is a
-  // finding, not an absence, so the count is the full roster.
+  set("vc-list",DATA.filter(recruitable).length); set("vc-scout",scRowsAll().length);
+  // Counts the same population the tab renders — fxBlock builds from scRows(),
+  // which now drops cap-tied players.
+  set("vc-fix",DATA.filter(p=>recruitable(p)&&NEXTM[p.tm_id]).length);
+  // The one tab that deliberately keeps cap-tied players. Its whole subject is
+  // who is developing whom, and "Egypt cannot get this one, here is why" is an
+  // answer a scout needs — otherwise the name simply vanishes and someone
+  // researches him again next month.
   set("vc-nat",DATA.length);
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
   const from={"#scouting":"scout","#fixtures":"fix","#national":"nat"}[location.hash]||"list";
@@ -862,7 +881,9 @@ function aChips(){
   document.getElementById("asel-nat").onchange=e=>{aFilter.nat=e.target.value;drawAnalytics();};
 }
 function aRows(){
-  return DATA.filter(x=>
+  // Charts describe the recruitable pool for the same reason the headline
+  // figures do — a cap-tied player is not part of what this dossier offers.
+  return DATA.filter(recruitable).filter(x=>
     (aFilter.country==="ALL"||x.country_crawled===aFilter.country)&&
     (aFilter.nat==="ALL"||x.citizenship.split(" / ").includes(aFilter.nat)));
 }
