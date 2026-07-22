@@ -208,7 +208,12 @@ function render(){
 /* ---- match stats blocks ---- */
 function formBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.form||!m.form.length)return "";
-  const rows=m.form.map(f=>{
+  // Eight rows, though form now carries fourteen. The extra six exist so the
+  // squad strip can resolve the club and score of all ten of its blocks -- they
+  // are lookup data, not something this card should grow to show. Sliced here
+  // rather than trimmed in the pipeline, because the strip genuinely needs them.
+  const shown=m.form.slice(0,8);
+  const rows=shown.map(f=>{
     const ga=(f.g||f.a)?`${f.g?f.g+"G":""}${f.g&&f.a?" ":""}${f.a?f.a+"A":""}`:"—";
     const comp=f.cn||f.comp||"";
     const tag=f.natl?'<span class="natl">NAT</span>':"";
@@ -221,9 +226,9 @@ function formBlock(p){
       <td class="mn">${f.min}'${f.s?'<i>ST</i>':'<i>sub</i>'}</td>
       <td class="r ga${(f.g||f.a)?"":" z"}">${esc(ga)}</td></tr>`;
   }).join("");
-  const nat=m.form.filter(f=>f.natl).length;
-  const note=nat?`<div class="mnote"><span class="natl">NAT</span> = national-team match (not club football)${nat===m.form.length?" — every recent game was for his country":""}.</div>`:"";
-  return `<div class="ct">${ICON.clock} Recent form · last ${m.form.length} games</div>
+  const nat=shown.filter(f=>f.natl).length;
+  const note=nat?`<div class="mnote"><span class="natl">NAT</span> = national-team match (not club football)${nat===shown.length?" — every recent game was for his country":""}.</div>`:"";
+  return `<div class="ct">${ICON.clock} Recent form · last ${shown.length} games</div>
     <div class="mwrap"><table class="mtbl">
       <thead><tr><th>Date</th><th>Opponent · competition</th><th class="c">H/A</th><th>Result</th><th>Mins</th><th class="r">G/A</th></tr></thead>
       <tbody>${rows}</tbody></table></div>${note}`;
