@@ -394,6 +394,16 @@ function scRows(){
     .sort((a,b)=>(b.m.status.played-a.m.status.played)||((b.m.status.g||0)-(a.m.status.g||0)));
 }
 function scSignal(s){
+  // Zero appearances is its own state and has to be tested first. Without it
+  // everyone fell through to "rotating": Mahmood Gamal, an unused sub ten times
+  // running, read the same as a genuine squad rotator, and 21 players carried a
+  // label that described the opposite of their situation.
+  if(!s.played){
+    // Named for what it is. A keeper travelling every week is a different
+    // proposition to a player left out of the squad entirely.
+    return s.bench>=5 ? '<span class="pill bench">benched all 10</span>'
+                      : '<span class="pill cold">no club minutes</span>';
+  }
   if(s.played>=8)return '<span class="pill hot">regular</span>';
   if(s.out>=5)return '<span class="pill cold">out of favour</span>';
   return '<span class="pill mid">rotating</span>';
@@ -412,8 +422,17 @@ function drawScouting(){
                  :x.s==="B"?"unused sub":"not in squad";
     const strip=m.squad.slice(0,10).map(x=>`<i class="${x.s}" title="${esc(x.d)} ${esc(x.cn||"")}${x.opp?" vs "+esc(x.opp):""} \u2014 ${mins(x)}"></i>`).join("");
     const ga=(s.g||s.a)?`${s.g?s.g+"G":""}${s.g&&s.a?" ":""}${s.a?s.a+"A":""}`:"\u2014";
+    // Face and crest, as on every other tab. A bare name column made this read
+    // as a spreadsheet next to the shortlist and fixtures, and a scout scanning
+    // 73 rows recognises a badge faster than a club name.
+    const face=p.photo
+      ? `<img class="scface" src="${p.photo}" alt="" loading="lazy">`
+      : `<span class="scface ini">${esc(initials(p.name))}</span>`;
+    const crest=CRESTS[p.club_id]
+      ? `<img class="sccrest" src="${CRESTS[p.club_id]}" alt="" loading="lazy">` : "";
     return `<tr>
-      <td class="pl">${esc(p.name)}<small>${esc(p.age)} \u00b7 ${esc(p.position||"")} \u00b7 ${esc(p.club||"")}</small></td>
+      <td class="pl"><span class="plw">${face}<span class="plt">${esc(p.name)}
+        <small>${esc(p.age)} \u00b7 ${esc(p.position||"")} \u00b7 ${crest}${esc(p.club||"")}</small></span></span></td>
       <td><span class="strip">${strip}</span></td>
       <td class="tally"><b>${s.played}</b> played \u00b7 ${s.bench} bench \u00b7 ${s.out} out</td>
       <td class="r ga2${(s.g||s.a)?"":" z"}">${esc(ga)}</td>

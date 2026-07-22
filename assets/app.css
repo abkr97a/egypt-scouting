@@ -421,9 +421,28 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 /* ---- scouting mode ---- */
 .scouting .mwrap{margin-top:18px}
 .sctbl .pl{color:var(--ink);font-weight:700;white-space:nowrap}
-.sctbl .pl small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;margin-top:2px}
-.strip{display:inline-flex;gap:3px}
-.strip i{width:13px;height:19px;border-radius:3px;display:block}
+.sctbl .pl small{display:block;font-weight:400;color:var(--muted);font-size:10.5px;margin-top:3px}
+/* Face + crest, matching the other two tabs. Without them this column was a
+   plain name and the whole tab read as a spreadsheet rather than part of the
+   same tool. */
+.plw{display:flex;align-items:center;gap:11px}
+.plt{min-width:0}
+.scface{width:34px;height:34px;flex:none;border-radius:8px;object-fit:cover;
+  background:var(--stone-2);border:1px solid var(--line)}
+.scface.ini{display:inline-flex;align-items:center;justify-content:center;
+  font:800 12px/1 var(--sans);color:var(--muted)}
+.sccrest{width:14px;height:14px;object-fit:contain;vertical-align:-2px;margin-right:5px}
+/* Taller blocks with a touch more air. At 13x19 and 3px apart the run of ten
+   read as a texture; the point of this column is that the pattern is legible
+   at a glance. */
+.strip{display:inline-flex;gap:4px}
+.strip i{width:15px;height:24px;border-radius:3px;display:block}
+/* Rows carry a 34px portrait now, so the inherited 9px padding left them
+   cramped. Zebra striping instead of relying on the divider alone: scanning
+   across six columns for 73 players needs the eye anchored to a row. */
+.sctbl td{padding:11px 10px 11px 0}
+.sctbl tbody tr:nth-child(even){background:rgba(128,128,128,.035)}
+.sctbl tbody tr:hover{background:rgba(200,16,46,.045)}
 .strip i.P{background:#2e9d5a}
 .strip i.B{background:#d9a441}
 .strip i.O{background:var(--line)}
@@ -432,10 +451,15 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 .sctbl .tally b{color:var(--ink)}
 .sctbl .ga2{font-weight:700;color:var(--red);white-space:nowrap}
 .sctbl .ga2.z{color:var(--line);font-weight:400}
-.pill{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.05em;padding:3px 8px;border-radius:20px}
+.pill{display:inline-block;font-size:9.5px;font-weight:800;letter-spacing:.05em;
+  padding:4px 9px;border-radius:20px;white-space:nowrap}
 .pill.hot{background:rgba(46,157,90,.14);color:#2e9d5a}
 .pill.cold{background:rgba(200,16,46,.1);color:var(--red)}
 .pill.mid{background:rgba(122,114,110,.13);color:var(--muted)}
+/* Amber, matching the benched blocks in the strip beside it: travelling with the
+   squad every week but never used is a distinct state from being left out. */
+.pill.bench{background:rgba(217,164,65,.16);color:#b8860b}
+:root[data-theme="dark"] .pill.bench{color:#d9a441}
 .scfilters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .sclegend{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .sclegend span{display:inline-flex;align-items:center;gap:6px}
