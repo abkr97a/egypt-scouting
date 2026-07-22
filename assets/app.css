@@ -497,7 +497,18 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
 :root[data-theme="dark"] .npill.chk{color:#d9a441}
 .nattbl td{padding:11px 10px 11px 0}
 
-/* National-team block on the player sheet, grouped by side. */
+/* Expandable rows on the national-teams tab. */
+.natrow{cursor:pointer}
+.natrow:hover{background:rgba(200,16,46,.05)}
+.natrow.open{background:rgba(200,16,46,.06)}
+.natrow:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+.natx{display:inline-block;margin-left:8px;font:700 10.5px/1 var(--mono,var(--sans));
+  color:var(--muted);white-space:nowrap}
+.natdet>td{padding:4px 0 18px 0!important;background:rgba(128,128,128,.04)}
+.natdet .ct{margin-top:0}
+.natdet .natgrp:last-of-type{margin-bottom:8px}
+
+/* National-team block, grouped by side. */
 .natgrp{margin-bottom:16px}
 .natgh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin:0 0 6px}
 .natgh b{font:800 13.5px/1.2 var(--sans);color:var(--ink)}

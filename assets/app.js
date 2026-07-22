@@ -530,6 +530,9 @@ function drawScouting(){
 // gettable -- he is simply being developed by someone else, which is a different
 // kind of urgency to a player nobody has called at all.
 let natFilter="ALL"; let natQuery="";
+// Which rows are expanded. A Set so several can be open at once — comparing two
+// players' international records side by side is the point of the tab.
+const natOpen=new Set();
 const NATG=[
   ["EGY", "In Egypt's setup",   "The EFA already knows them. Youth caps do not cap-tie, so these are Egypt's to keep."],
   ["OTH", "Another federation", "Being developed elsewhere. Youth caps still leave the switch open — but someone else is watching."],
@@ -582,12 +585,19 @@ function drawNat(){
     const tag=nt?`<span class="ntag${senior?" sr":""}">${esc(nt)}</span>`
                :`<span class="ntag none">not called up</span>`;
     const caps=(p.caps&&p.caps!=="0")?`${esc(p.caps)}`:"—";
-    return `<tr>
+    const m=MSTATS[p.tm_id];
+    const has=!!(m&&m.natl&&m.natl.length);
+    // Expands in place rather than opening the player sheet. The sheet is about
+    // club form; this tab is about who is developing him, and the appearances
+    // belong next to the team name they explain.
+    const open=natOpen.has(p.tm_id);
+    return `<tr class="${has?"natrow":""}${open?" open":""}"${has?` data-nat-id="${esc(p.tm_id)}"`:""}>
       <td class="pl"><span class="plw">${face}<span class="plt">${esc(p.name)}
         <small>${esc(p.age)} · ${esc(p.position||"")} · ${crest}${esc(p.club||"")}</small></span></span></td>
-      <td>${tag}</td>
+      <td>${tag}${has?`<span class="natx">${open?"▾":"▸"} ${m.natl.length}</span>`:""}</td>
       <td class="r ga2${caps==="—"?" z":""}">${caps}</td>
-      <td class="c">${statusPill(p)}</td></tr>`;
+      <td class="c">${statusPill(p)}</td></tr>`
+      +(open?`<tr class="natdet"><td colspan="4">${natlBlock(p)}</td></tr>`:"");
   };
 
   const cols=`<colgroup><col style="width:42%"><col style="width:22%">`
@@ -608,6 +618,14 @@ function drawNat(){
     const n=(()=>{const o=natFilter;natFilter=k;const c=natRows().length;natFilter=o;return c;})();
     return `<button class="chip${natFilter===k?" on":""}" data-nat="${k}">${l} <b>${n}</b></button>`;}).join("");
   document.querySelectorAll("#natfilters .chip").forEach(b=>b.onclick=()=>{natFilter=b.dataset.nat;drawNat();});
+
+  host.querySelectorAll(".natrow").forEach(tr=>{
+    const id=tr.dataset.natId;
+    const toggle=()=>{ natOpen.has(id)?natOpen.delete(id):natOpen.add(id); drawNat(); };
+    tr.onclick=toggle;
+    tr.tabIndex=0;
+    tr.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}};
+  });
 
   const box=document.getElementById("natq");
   if(box&&!box._wired){box._wired=1;box.oninput=e=>{natQuery=e.target.value;drawNat();};}
@@ -747,7 +765,6 @@ function openModal(id){
         </div>
         ${statCards(p)}
         ${formBlock(p)}
-        ${natlBlock(p)}
         ${trajBlock(p)}
         ${transferBlock(p)}
         ${sparkline(p)}
