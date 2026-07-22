@@ -2,12 +2,12 @@
    It used to be inlined here as ~350KB of `const DATA=[...]`, which meant every
    data refresh rewrote the application code — the reason twelve injector scripts
    existed and the reason the page broke four times. */
-let DATA=[],MSTATS={},CRESTS={},NEXTM={},FLAGS={},NAT3={},LGTIER={},MANIFEST=[];
+let DATA=[],MSTATS={},CRESTS={},NEXTM={},FLAGS={},NAT3={},LGTIER={},MANIFEST=[],NATIDMAP={};
 
 async function boot(){
   const load=n=>fetch(`data/${n}.json`).then(r=>r.json());
-  [DATA,MSTATS,CRESTS,NEXTM,FLAGS,NAT3,LGTIER,MANIFEST]=await Promise.all(
-    ["data","mstats","crests","nextm","flags","nat3","lgtier","manifest"].map(load));
+  [DATA,MSTATS,CRESTS,NEXTM,FLAGS,NAT3,LGTIER,MANIFEST,NATIDMAP]=await Promise.all(
+    ["data","mstats","crests","nextm","flags","nat3","lgtier","manifest","natids"].map(load));
   filters();render();aChips();drawAnalytics();drawScouting();initTabs();syncCounts();
 }
 boot();
@@ -220,6 +220,33 @@ const MONTHS=[,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"
 function natBadge(id){
   return CRESTS[id]?`<img class="natflag" src="${CRESTS[id]}" alt="" loading="lazy">`:"";
 }
+
+// team name -> verein id, built once from every national game in the dossier,
+// counting opponents as well as own sides.
+//
+// Taking the id from the player's own appearances was not enough. Three players
+// are listed as Egypt U19/U20 on their profile but have no national game in the
+// feed at all, so there was no id to read; and Adam Tolba's only national games
+// are for Germany U18, so a lookup on his own record could never find Egypt U20.
+// Someone else in the dossier has almost always played for -- or against -- the
+// side in question, so a shared map fills the gap.
+let NATIDS=null;
+function natIdOf(team){
+  if(!team)return null;
+  if(!NATIDS){
+    const seen=new Map();
+    // Match data first: covers every opponent any player has faced.
+    Object.values(MSTATS).forEach(m=>(m.natl||[]).forEach(x=>{
+      if(x.team&&x.sid&&!seen.has(x.team))seen.set(x.team,String(x.sid));
+      if(x.opp&&x.oid&&!seen.has(x.opp))seen.set(x.opp,String(x.oid));
+    }));
+    // Then the profile-derived map, which is authoritative for the 15 sides our
+    // own players are listed with -- including four nobody has played against.
+    Object.entries(NATIDMAP||{}).forEach(([k,v])=>seen.set(k,String(v)));
+    NATIDS=seen;
+  }
+  return NATIDS.get(team)||null;
+}
 function natlBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.natl||!m.natl.length)return "";
   const by=new Map();
@@ -238,14 +265,14 @@ function natlBlock(p){
       const d=(x.d||"").split("-");
       return `<tr>
         <td class="dt">${esc(d[2]||"")} ${esc(MONTHS[+d[1]]||"")} <span class="yr">${esc(d[0]||"")}</span></td>
-        <td class="opp">${x.opp?`<span class="vs">vs</span>${natBadge(x.oid)}${esc(x.opp)}`:"—"}
+        <td class="opp">${x.opp?`<span class="vs">vs</span>${natBadge(x.oid||natIdOf(x.opp))}${esc(x.opp)}`:"—"}
           <small title="${esc(x.cn||"")}">${esc(x.cn||"")}</small></td>
         <td class="mn">${x.part==="P"?(x.min?`<b>${x.min}'</b>`:`<span class="pw p">minutes pending</span>`)
           :x.part==="B"?`<span class="pw b">unused sub</span>`:`<span class="pw o">not in squad</span>`}</td>
         <td class="r ga${(x.g||x.a)?"":" z"}">${esc(ga)}</td></tr>`;
     }).join("");
     return `<div class="natgrp">
-      <div class="natgh">${natBadge(gs[0]&&gs[0].sid)}<b class="${senior?"sr":""}">${esc(team)}</b>
+      <div class="natgh">${natBadge((gs[0]&&gs[0].sid)||natIdOf(team))}<b class="${senior?"sr":""}">${esc(team)}</b>
         <span>${gs.length} call-up${gs.length===1?"":"s"} · ${played} played${goals?` · ${goals}G`:""}${asts?` · ${asts}A`:""}</span></div>
       <div class="mwrap"><table class="mtbl">
         <thead><tr><th>Date</th><th>Opponent · competition</th><th>Mins</th><th class="r">G/A</th></tr></thead>
@@ -594,11 +621,9 @@ function drawNat(){
     // A bare country name means a SENIOR side, which is the one thing that does
     // cap-tie. Flagged in red so it is never confused with a youth call-up.
     const senior=nt&&!/U-?\d\d/.test(nt);
-    // The store has the team's NAME but not its id; the match data has both, so
-    // take the badge from his most recent appearance for that side.
-    const mm=MSTATS[p.tm_id];
-    const sid=nt&&mm&&mm.natl?(mm.natl.find(x=>x.team===nt)||{}).sid:null;
-    const tag=nt?`<span class="ntag${senior?" sr":""}">${natBadge(sid)}${esc(nt)}</span>`
+    // The store has the team's NAME but not its id, so resolve it through the
+    // dossier-wide map rather than this player's own appearances.
+    const tag=nt?`<span class="ntag${senior?" sr":""}">${natBadge(natIdOf(nt))}${esc(nt)}</span>`
                :`<span class="ntag none">not called up</span>`;
     const caps=(p.caps&&p.caps!=="0")?`${esc(p.caps)}`:"—";
     const m=MSTATS[p.tm_id];
