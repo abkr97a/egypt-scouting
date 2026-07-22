@@ -480,6 +480,96 @@ function drawScouting(){
   const box=document.getElementById("scq");
   if(box&&!box._wired){box._wired=1;box.oninput=e=>{scQuery=e.target.value;drawScouting();};}
   fxBlock();
+  drawNat();
+}
+
+/* ---- national teams ----------------------------------------------------- */
+// The question this tab answers is not "is he capped" but "who is developing
+// him". Under Article 9 a youth cap ties nobody, so a Qatar U23 player is still
+// gettable -- he is simply being developed by someone else, which is a different
+// kind of urgency to a player nobody has called at all.
+let natFilter="ALL"; let natQuery="";
+const NATG=[
+  ["EGY", "In Egypt's setup",   "The EFA already knows them. Youth caps do not cap-tie, so these are Egypt's to keep."],
+  ["OTH", "Another federation", "Being developed elsewhere. Youth caps still leave the switch open — but someone else is watching."],
+  ["NONE","Never called up",    "No federation has approached them at any level. The largest group, and the least contested."],
+];
+function natGroup(p){
+  const nt=(p.national_team||"").trim();
+  if(!nt)return "NONE";
+  return nt.startsWith("Egypt") ? "EGY" : "OTH";
+}
+// "Egypt U20" -> 20, a bare country -> 99 so senior sorts last within a group.
+function natLevel(p){
+  const m=/U-?(\d{2})/.exec(p.national_team||"");
+  return m?+m[1]:(p.national_team?99:0);
+}
+// SEL covers only the three shortlist statuses, so cap-tied and needs-review had
+// no label. This tab is precisely where those two matter, so it carries its own
+// complete map rather than rendering a raw enum.
+const NATSTATUS={
+  ELIGIBLE_UNCALLED:       ["ok",  "Eligible"],
+  ELIGIBLE_YOUTH_ELSEWHERE:["ok",  "Still switchable"],
+  IN_EGYPT_PIPELINE:       ["egy", "Egypt youth setup"],
+  CAP_TIED_ELSEWHERE:      ["no",  "Cap-tied — cannot switch"],
+  NEEDS_REVIEW:            ["chk", "Needs confirming"],
+};
+function statusPill(p){
+  const [k,label]=NATSTATUS[p.status]||["chk",p.status||"—"];
+  return `<span class="npill ${k}">${esc(label)}</span>`;
+}
+function natRows(){
+  return DATA.filter(p=>hits(p,natQuery))
+    .filter(p=>natFilter==="ALL"||natGroup(p)===natFilter)
+    .sort((a,b)=>natLevel(a)-natLevel(b)
+      ||(a.national_team||"").localeCompare(b.national_team||"")
+      ||a.name.localeCompare(b.name));
+}
+function drawNat(){
+  const host=document.getElementById("natgroups");
+  if(!host)return;
+  const rows=natRows();
+
+  const row=p=>{
+    const face=p.photo?`<img class="scface" src="${p.photo}" alt="" loading="lazy">`
+                      :`<span class="scface ini">${esc(initials(p.name))}</span>`;
+    const crest=CRESTS[p.club_id]?`<img class="sccrest" src="${CRESTS[p.club_id]}" alt="" loading="lazy">`:"";
+    const nt=p.national_team||"";
+    // A bare country name means a SENIOR side, which is the one thing that does
+    // cap-tie. Flagged in red so it is never confused with a youth call-up.
+    const senior=nt&&!/U-?\d\d/.test(nt);
+    const tag=nt?`<span class="ntag${senior?" sr":""}">${esc(nt)}</span>`
+               :`<span class="ntag none">not called up</span>`;
+    const caps=(p.caps&&p.caps!=="0")?`${esc(p.caps)}`:"—";
+    return `<tr>
+      <td class="pl"><span class="plw">${face}<span class="plt">${esc(p.name)}
+        <small>${esc(p.age)} · ${esc(p.position||"")} · ${crest}${esc(p.club||"")}</small></span></span></td>
+      <td>${tag}</td>
+      <td class="r ga2${caps==="—"?" z":""}">${caps}</td>
+      <td class="c">${statusPill(p)}</td></tr>`;
+  };
+
+  const cols=`<colgroup><col style="width:42%"><col style="width:22%">`
+    +`<col style="width:10%"><col style="width:26%"></colgroup>`;
+  const head=`<thead><tr><th>Player</th><th>National team</th>`
+    +`<th class="r">Caps</th><th class="c">Eligibility</th></tr></thead>`;
+
+  host.innerHTML=NATG.map(([key,label,blurb])=>{
+    const g=rows.filter(p=>natGroup(p)===key);
+    if(!g.length)return "";
+    return `<div class="scgrp"><div class="ct">${label} <span class="gc">${g.length}</span></div>
+      <p class="ntblurb">${blurb}</p>
+      <div class="mwrap"><table class="mtbl sctbl nattbl">${cols}${head}<tbody>${g.map(row).join("")}</tbody></table></div></div>`;
+  }).join("")||`<p class="mnote">No player matches “${esc(natQuery)}”.</p>`;
+
+  const f=[["ALL","All"],...NATG.map(([k,l])=>[k,l])];
+  document.getElementById("natfilters").innerHTML=f.map(([k,l])=>{
+    const n=(()=>{const o=natFilter;natFilter=k;const c=natRows().length;natFilter=o;return c;})();
+    return `<button class="chip${natFilter===k?" on":""}" data-nat="${k}">${l} <b>${n}</b></button>`;}).join("");
+  document.querySelectorAll("#natfilters .chip").forEach(b=>b.onclick=()=>{natFilter=b.dataset.nat;drawNat();});
+
+  const box=document.getElementById("natq");
+  if(box&&!box._wired){box._wired=1;box.oninput=e=>{natQuery=e.target.value;drawNat();};}
 }
 /* ---- keep every displayed number derived from DATA ---- */
 function syncCounts(){
@@ -510,13 +600,13 @@ function syncCounts(){
 
 /* ---- view tabs ---- */
 function setView(v){
-  const map={list:"view-list",scout:"scouting",fix:"view-fix"};
+  const map={list:"view-list",scout:"scouting",fix:"view-fix",nat:"view-nat"};
   Object.entries(map).forEach(([key,id])=>{
     const el=document.getElementById(id);
     if(el)el.classList.toggle("vhide",key!==v);
   });
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  const hash={list:"#shortlist",scout:"#scouting",fix:"#fixtures"}[v]||"#shortlist";
+  const hash={list:"#shortlist",scout:"#scouting",fix:"#fixtures",nat:"#national"}[v]||"#shortlist";
   try{history.replaceState(null,"",hash);}catch(e){}
 }
 function initTabs(){
@@ -527,8 +617,11 @@ function initTabs(){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set("vc-list",DATA.length); set("vc-scout",scRowsAll().length);
   set("vc-fix",DATA.filter(p=>NEXTM[p.tm_id]).length);
+  // Everyone in the dossier appears here — the "never called up" group is a
+  // finding, not an absence, so the count is the full roster.
+  set("vc-nat",DATA.length);
   document.querySelectorAll("#vtabs .vtab").forEach(b=>b.onclick=()=>setView(b.dataset.v));
-  const from={"#scouting":"scout","#fixtures":"fix"}[location.hash]||"list";
+  const from={"#scouting":"scout","#fixtures":"fix","#national":"nat"}[location.hash]||"list";
   setView(from);
 }
 

@@ -76,6 +76,7 @@
   <button class="vtab on" data-v="list" role="tab">The shortlist <span class="vc" id="vc-list"></span></button>
   <button class="vtab" data-v="scout" role="tab">Scouting mode <span class="vc" id="vc-scout"></span></button>
   <button class="vtab" data-v="fix" role="tab">Fixtures <span class="vc" id="vc-fix"></span></button>
+  <button class="vtab" data-v="nat" role="tab">National teams <span class="vc" id="vc-nat"></span></button>
 </nav>
 
 <section class="sec" id="view-list">
@@ -123,6 +124,21 @@
   </div>
   <div class="scfilters" id="fxpos"></div>
   <div id="fixtures"></div>
+</section>
+
+<section class="natteams sec vhide" id="view-nat">
+  <div class="glyphrule"><span class="g">&#9733;</span></div>
+  <div class="eyebrow" style="margin-bottom:14px">National teams <span class="ar">&#1575;&#1604;&#1605;&#1606;&#1578;&#1582;&#1576;&#1575;&#1578;</span></div>
+  <h2 style="font-size:clamp(26px,4vw,38px)">Who Egypt already has &mdash; and who it doesn&rsquo;t.</h2>
+  <p style="max-width:66ch;color:var(--muted);margin-top:12px">Under FIFA Article&nbsp;9 a youth cap ties nobody:
+  a player in Qatar&rsquo;s U23 side can still choose Egypt. Only a <b>senior competitive</b> cap closes the door.
+  So the useful split is not capped versus uncapped &mdash; it is who the EFA is already developing, who another
+  federation is developing, and who nobody has called at all.</p>
+  <div class="filterbar">
+    <div class="scfilters" id="natfilters"></div>
+    <div class="fxsearch"><input id="natq" type="search" placeholder="Search player, club or country…" aria-label="Search players"></div>
+  </div>
+  <div id="natgroups"></div>
 </section>
 
 <section class="analytics sec">

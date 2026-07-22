@@ -479,6 +479,23 @@ h1,h2,h3{font-family:var(--disp);font-weight:800;letter-spacing:.02em;text-trans
    squad every week but never used is a distinct state from being left out. */
 .pill.bench{background:rgba(217,164,65,.16);color:#b8860b}
 :root[data-theme="dark"] .pill.bench{color:#d9a441}
+
+/* ---- national teams tab ---- */
+.ntblurb{color:var(--muted);font-size:12.5px;margin:2px 0 12px;max-width:76ch;line-height:1.5}
+/* The team itself. A bare country is a SENIOR side -- the only thing that
+   cap-ties -- so it is red, never mistakable for a youth call-up. */
+.ntag{display:inline-block;font:700 11.5px/1 var(--sans);padding:5px 9px;border-radius:6px;
+  background:rgba(128,128,128,.12);color:var(--ink);white-space:nowrap}
+.ntag.sr{background:rgba(200,16,46,.12);color:var(--red);font-weight:800}
+.ntag.none{background:transparent;border:1px dashed var(--line);color:var(--muted);font-weight:400}
+.npill{display:inline-block;font:800 9.5px/1 var(--sans);letter-spacing:.05em;
+  padding:4px 9px;border-radius:20px;white-space:nowrap}
+.npill.ok{background:rgba(46,157,90,.14);color:#2e9d5a}
+.npill.egy{background:rgba(200,16,46,.1);color:var(--red)}
+.npill.no{background:rgba(128,128,128,.16);color:var(--muted);text-decoration:line-through}
+.npill.chk{background:rgba(217,164,65,.16);color:#b8860b}
+:root[data-theme="dark"] .npill.chk{color:#d9a441}
+.nattbl td{padding:11px 10px 11px 0}
 .scfilters{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
 .sclegend{font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .sclegend span{display:inline-flex;align-items:center;gap:6px}
