@@ -215,6 +215,11 @@ function formBlock(p){
 // MON already exists further down as name->index for parsing; this is the
 // reverse, index->name, for display.
 const MONTHS=[,"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+// National sides carry a TM verein id like any club, so their badge comes from
+// the same crest map. Renders nothing when absent rather than a broken image.
+function natBadge(id){
+  return CRESTS[id]?`<img class="natflag" src="${CRESTS[id]}" alt="" loading="lazy">`:"";
+}
 function natlBlock(p){
   const m=MSTATS[p.tm_id]; if(!m||!m.natl||!m.natl.length)return "";
   const by=new Map();
@@ -233,14 +238,14 @@ function natlBlock(p){
       const d=(x.d||"").split("-");
       return `<tr>
         <td class="dt">${esc(d[2]||"")} ${esc(MONTHS[+d[1]]||"")} <span class="yr">${esc(d[0]||"")}</span></td>
-        <td class="opp">${x.opp?`<span class="vs">vs</span>${esc(x.opp)}`:"—"}
+        <td class="opp">${x.opp?`<span class="vs">vs</span>${natBadge(x.oid)}${esc(x.opp)}`:"—"}
           <small title="${esc(x.cn||"")}">${esc(x.cn||"")}</small></td>
         <td class="mn">${x.part==="P"?(x.min?`<b>${x.min}'</b>`:`<span class="pw p">minutes pending</span>`)
           :x.part==="B"?`<span class="pw b">unused sub</span>`:`<span class="pw o">not in squad</span>`}</td>
         <td class="r ga${(x.g||x.a)?"":" z"}">${esc(ga)}</td></tr>`;
     }).join("");
     return `<div class="natgrp">
-      <div class="natgh"><b class="${senior?"sr":""}">${esc(team)}</b>
+      <div class="natgh">${natBadge(gs[0]&&gs[0].sid)}<b class="${senior?"sr":""}">${esc(team)}</b>
         <span>${gs.length} call-up${gs.length===1?"":"s"} · ${played} played${goals?` · ${goals}G`:""}${asts?` · ${asts}A`:""}</span></div>
       <div class="mwrap"><table class="mtbl">
         <thead><tr><th>Date</th><th>Opponent · competition</th><th>Mins</th><th class="r">G/A</th></tr></thead>
@@ -589,7 +594,11 @@ function drawNat(){
     // A bare country name means a SENIOR side, which is the one thing that does
     // cap-tie. Flagged in red so it is never confused with a youth call-up.
     const senior=nt&&!/U-?\d\d/.test(nt);
-    const tag=nt?`<span class="ntag${senior?" sr":""}">${esc(nt)}</span>`
+    // The store has the team's NAME but not its id; the match data has both, so
+    // take the badge from his most recent appearance for that side.
+    const mm=MSTATS[p.tm_id];
+    const sid=nt&&mm&&mm.natl?(mm.natl.find(x=>x.team===nt)||{}).sid:null;
+    const tag=nt?`<span class="ntag${senior?" sr":""}">${natBadge(sid)}${esc(nt)}</span>`
                :`<span class="ntag none">not called up</span>`;
     const caps=(p.caps&&p.caps!=="0")?`${esc(p.caps)}`:"—";
     const m=MSTATS[p.tm_id];
