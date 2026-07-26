@@ -343,6 +343,25 @@ const BLANK="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICT
 
 /* ---- last / next match cards ---- */
 const MON={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+// A fixture's date/time in CAIRO. The fixture is scraped from transfermarkt.us,
+// so f.date/f.time are US-Eastern: a 7pm Eastern kickoff is already 2am the next
+// day in Cairo, and showing the Eastern date ("Jul 25") beside a converted time
+// mis-dated the match by a day. f.utc is the real instant; derive both from it so
+// they agree. f.date/f.time are the fallback only for an older scrape with no utc.
+const CAIRO="Africa/Cairo";
+// A fixture is only "upcoming" while its kickoff is not well past. Between refreshes
+// a played match lingers in nextm.json; without this it kept showing as still-to-come
+// the day after it was played. 4h grace so a live/just-finished game stays visible;
+// no utc (older scrape) is kept, since it cannot be judged.
+function fxUpcoming(f){ if(!f)return false; if(!f.utc)return true;
+  const t=Date.parse(f.utc); return isNaN(t)?true:t>=Date.now()-4*60*60*1000; }
+function koCairo(f){
+  if(f&&f.utc){const d=new Date(f.utc);
+    if(!isNaN(d))return {
+      date:d.toLocaleDateString("en-GB",{timeZone:CAIRO,day:"numeric",month:"short",year:"numeric"}),
+      time:d.toLocaleTimeString("en-GB",{timeZone:CAIRO,hour:"2-digit",minute:"2-digit",hour12:false})};}
+  return {date:(f&&f.date)||"",time:(f&&f.time)||""};
+}
 function fxDate(s){                       // "Aug 29, 2026" or "2026-04-17" -> epoch
   if(!s)return 0;
   const iso=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
@@ -362,13 +381,19 @@ function fxBlock(){
   // unrelated facts competing for the same eye.
   const upcoming = fxView==="next";
   rows = rows.filter(({p,m})=> upcoming
-      ? !!NEXTM[p.tm_id]
+      ? (!!NEXTM[p.tm_id] && fxUpcoming(NEXTM[p.tm_id]))
       : !!(m.form||[])[0]);
 
   const key = ({p,m}) => {
     if(fxSort==="pos")  return posGroup(p.position)+"|"+p.name;
     if(fxSort==="name") return p.name;
-    const d = upcoming ? fxDate((NEXTM[p.tm_id]||{}).date) : fxDate(((m.form||[])[0]||{}).fd);
+    // Upcoming: sort by the real kickoff INSTANT (utc) so a 2am-Cairo match orders
+    // by its Cairo day, not the earlier US-Eastern date. Falls back to the date
+    // string when a fixture has no utc.
+    const nx=NEXTM[p.tm_id]||{};
+    const d = upcoming
+      ? (nx.utc? Date.parse(nx.utc) || fxDate(nx.date) : fxDate(nx.date))
+      : fxDate(((m.form||[])[0]||{}).fd);
     return d;                              // date
   };
   rows.sort((a,b)=>{
@@ -396,7 +421,7 @@ function fxBlock(){
       const n=NEXTM[p.tm_id];
       const venue=n.ha==="H"?"Home":n.ha==="A"?"Away":"";
       body=`<div class="fxm">
-        <div class="fxwhen">${esc(n.date)}${n.time?` · <b>${esc(n.time)}</b>`:""}${venue?` · ${venue}`:""}</div>
+        <div class="fxwhen">${(()=>{const k=koCairo(n);return esc(k.date)+(k.time?` · <b>${esc(k.time)}</b>`:"");})()}${venue?` · ${venue}`:""}</div>
         <div class="fxvs">${side(n.sid||own,p.club,null,false)}${side(n.oid,n.opp,null,false)}</div></div>`;
     }else{
       const last=(m.form||[])[0];
@@ -439,7 +464,9 @@ function fxBlock(){
   }).join("");
 
   const nPrev=scRows().filter(x=>(x.m.form||[])[0]).length;
-  const nNext=scRows().filter(x=>NEXTM[x.p.tm_id]).length;
+  // Same past-kickoff filter the view applies, so the tab count never promises a
+  // card it will not draw.
+  const nNext=scRows().filter(x=>fxUpcoming(NEXTM[x.p.tm_id])).length;
   document.getElementById("fixtures").innerHTML=
     `<div class="fxsubs">
        <button class="sub${fxView==="prev"?" on":""}" data-fxv="prev">Previous match <b>${nPrev}</b></button>
